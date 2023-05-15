@@ -1,9 +1,6 @@
 import React from 'react';
-import { VerticalList } from '../vertical-list';
-import { IDataItem, data } from '../../data';
-import { LoadMoreEvent } from '../../../src/types';
-import { HorizontalList } from '../horizontal-list';
 import { VerticalListWindow } from '../vertikal-list-window';
+import { data } from '../../data';
 
 export const LIST_HEIGHT = 300;
 export const LIST_WIDTH = 600;

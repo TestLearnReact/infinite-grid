@@ -1,6 +1,11 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { ISubProps } from '../../types';
-import { LoadMoreEvent, LoadMoreReturn, useVirtualList } from '../../../src';
+//import { LoadMoreEvent, LoadMoreReturn, useVirtualList } from '../../../src';
+import {
+	LoadMoreEvent,
+	LoadMoreReturn,
+	useVirtualList,
+} from '@module/use-virtual-list';
 import { IDataItem } from '../../data';
 
 const isItemLoadedArr: boolean[] = [];
