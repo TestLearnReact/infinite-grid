@@ -24,6 +24,6 @@ export type TCacheValues = {
 		scrollForward: boolean;
 	};
 	_loadMore: boolean;
-	_timerScrollStop: null | number;
+	_timerScrollStop: null | NodeJS.Timeout;
 	_isMounted: boolean;
 };
