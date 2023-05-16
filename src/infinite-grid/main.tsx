@@ -6,21 +6,33 @@ import usePerfectLayout from '@module/use-perfect-layout';
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	inputData,
 }: React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
+	const refOuterWrapper = useRef<HTMLDivElement>(null);
+	const refInnerWrapper = useRef<HTMLDivElement>(null);
+
 	const [dataFetched, setDataFetched] = useState<
 		IInfiniteGridProps<ItemType>['inputData']
 	>([]);
 	const [speed, setSpeed] = useState<number>(0);
-
 	const refSpeedBigger = useRef<boolean>(false);
 
-	const {
-		visibleItems,
-		containerStyles,
-		refOuter: refOuterWrapper,
-		refInner: refInnerWrapper,
-		isFetching,
-		scrollingSpeed,
-	} = useVirtualList<ItemType, HTMLDivElement, HTMLDivElement>({
+	const { perfectGridData, totalHeight } = usePerfectLayout<
+		ItemType,
+		HTMLDivElement
+	>({
+		items: inputData,
+		refVpWrapper: refOuterWrapper,
+		viewportHeight: 937, //viewportRect.height,
+		viewportWidth: 600, // viewportRect.width,
+		idealRowHeight: ({ viewportHeight, viewportWidth }) => viewportWidth / 2,
+	});
+
+	const { visibleItems, containerStyles, isFetching } = useVirtualList<
+		ItemType,
+		HTMLDivElement,
+		HTMLDivElement
+	>({
+		xouterRef: refOuterWrapper,
+		xinnerRef: refInnerWrapper,
 		itemSize: () => 200,
 		listDirection: 0,
 		overscan: 1,
