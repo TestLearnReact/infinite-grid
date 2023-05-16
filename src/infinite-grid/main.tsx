@@ -5,15 +5,20 @@ import usePerfectLayout from '@module/use-perfect-layout';
 
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	inputData,
+	virtualListSubProps = {
+		overscan: 3,
+		skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
+	},
 }: React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
 	const refOuterWrapper = useRef<HTMLDivElement>(null);
 	const refInnerWrapper = useRef<HTMLDivElement>(null);
+
+	const refSpeedBigger = useRef<boolean>(false);
 
 	const [dataFetched, setDataFetched] = useState<
 		IInfiniteGridProps<ItemType>['inputData']
 	>([]);
 	const [speed, setSpeed] = useState<number>(0);
-	const refSpeedBigger = useRef<boolean>(false);
 
 	const { perfectGridData, totalHeight } = usePerfectLayout<
 		ItemType,
@@ -26,6 +31,8 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 		idealRowHeight: ({ viewportHeight, viewportWidth }) => viewportWidth / 2,
 	});
 
+	console.log('virtualListSubProps', virtualListSubProps.overscan);
+
 	const { visibleItems, containerStyles, isFetching } = useVirtualList<
 		ItemType,
 		HTMLDivElement,
@@ -35,7 +42,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 		xinnerRef: refInnerWrapper,
 		itemSize: () => 200,
 		listDirection: 0,
-		overscan: 1,
+		overscan: virtualListSubProps.overscan,
 		useWindowScroll: true,
 		items: inputData,
 		// loadMoreProps: {
@@ -60,11 +67,13 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 			}
 		},
 		waitScroll: 40,
-		skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
+		skipRenderProps: virtualListSubProps.skipRenderProps,
 	});
 
 	const shouldRender =
 		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
+
+	console.log('rerender', totalHeight, refOuterWrapper.current?.offsetWidth);
 
 	return (
 		<>
