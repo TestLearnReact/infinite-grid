@@ -1,20 +1,8 @@
 import BreakpointPartition from './utils';
-import { TOptions } from './types';
+import { IPerfectLayoutProps, IRequiredInputDataProps } from './types';
 import { IPerfectLayoutResponse } from '../types';
 
-type TRequiredInputDataProps = { ratio: number };
-
-export interface IPerfectLayoutProps<ItemType> {
-	inputData: ItemType[];
-	viewportWidth: number;
-	viewportHeight: number;
-	opts?: TOptions<ItemType>;
-	idealRowHeight?: number;
-	useNextToLastPartitionsForLastRow?: boolean;
-	optimizeLastRow?: { optimize: boolean; avgLastRowCount: number };
-}
-
-export function perfectLayout<ItemType extends TRequiredInputDataProps>({
+export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	inputData,
 	viewportWidth,
 	viewportHeight,

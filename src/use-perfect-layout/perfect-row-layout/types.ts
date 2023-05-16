@@ -1,16 +1,25 @@
-export interface TOptions<ItemType> {
-	margin: number;
-	idealRowHeight?: number | ItemSizeGetter<ItemType>;
-	idealRowWidth?: number | ItemSizeGetter<ItemType>;
-}
-
-// export type ItemSizeGetter<ItemType> = (item: ItemType) => number;
-export type ItemSizeGetter<ItemType> = ({
+type ItemSizeGetter = ({
 	viewportHeight,
 	viewportWidth,
-}: //item,
-{
+}: {
 	viewportHeight: number;
 	viewportWidth: number;
-	//item: ItemType;
 }) => number;
+
+type IOptions = {
+	margin: number;
+	idealRowHeight?: number | ItemSizeGetter;
+	idealRowWidth?: number | ItemSizeGetter;
+};
+
+export type IRequiredInputDataProps = { ratio: number };
+
+export interface IPerfectLayoutProps<ItemType> {
+	inputData: ItemType[];
+	viewportWidth: number;
+	viewportHeight: number;
+	opts?: IOptions;
+	idealRowHeight?: number;
+	useNextToLastPartitionsForLastRow?: boolean;
+	optimizeLastRow?: { optimize: boolean; avgLastRowCount: number };
+}

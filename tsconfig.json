@@ -17,10 +17,10 @@
 		"jsx": "react-jsx",
 		"paths": {
 			"@module/use-virtual-list": ["./src/use-virtual-list/index.ts"],
-			"@module/use-perfect-layout": ["./srcuse-perfect-layout/index.ts"],
+			"@module/use-perfect-layout": ["./src/use-perfect-layout/index.ts"],
 			"@module/infinite-grid": ["./src/infinite-grid/index.ts"]
 		}
 	},
-	"include": ["src", "examples"],
+	"include": ["src", "examples", "./src/**/*.ts"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

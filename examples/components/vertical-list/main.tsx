@@ -1,6 +1,6 @@
 import React from 'react';
 import { ISubProps } from '../../types';
-import { useVirtualList } from '../../../src';
+import { useVirtualList } from '@module/use-virtual-list';
 import { IDataItem } from '../../data';
 
 // const isItemLoadedArr: boolean[] = [];

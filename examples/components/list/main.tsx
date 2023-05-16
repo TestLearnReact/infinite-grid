@@ -1,6 +1,7 @@
 import React from 'react';
 import { VerticalListWindow } from '../vertikal-list-window';
-import { data } from '../../data';
+import { data, dataWidthHeightRatio } from '../../data';
+import InfiniteGrid from '@module/infinite-grid';
 
 export const LIST_HEIGHT = 300;
 export const LIST_WIDTH = 600;
@@ -17,11 +18,12 @@ export const ListTypes: React.FC = () => {
 			// 	padding: 0,
 			// }}
 		>
-			<VerticalListWindow
+			<InfiniteGrid inputData={dataWidthHeightRatio} />
+			{/* <VerticalListWindow
 				listHeight={LIST_HEIGHT}
 				listWidth={LIST_WIDTH}
 				data={data}
-			/>
+			/> */}
 			{/* <VerticalList
 				listHeight={LIST_HEIGHT}
 				listWidth={LIST_WIDTH}
