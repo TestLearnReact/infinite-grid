@@ -1,22 +1,32 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { perfectLayout } from './perfect-row-layout';
 import { IUsePerfectLayoutProps, IPerfectLayoutResponse } from './types';
+import { useIsomorphicLayoutEffect } from '../use-virtual-list/hooks'; // todo
 
 export function usePerfectLayout<
-	ItemType extends { ratio: number } // todo besser keyof add property?
+	ItemType extends { ratio: number },
+	O extends HTMLElement = HTMLElement
 >({
 	items,
+	refVpWrapper,
 	viewportHeight,
 	viewportWidth,
 	idealRowHeight,
 	idealRowWidth,
-}: IUsePerfectLayoutProps<ItemType>): IPerfectLayoutResponse<ItemType> {
+}: IUsePerfectLayoutProps<ItemType, O>): IPerfectLayoutResponse<ItemType, O> {
+	const refOuterContainer = useRef<O | null>(null);
+
 	const [stateResponse, setStateResponse] = useState<
-		IPerfectLayoutResponse<ItemType>
+		IPerfectLayoutResponse<ItemType, O>
 	>({
 		perfectGridData: [],
 		totalHeight: 0,
+		refVpWrapper: refOuterContainer,
 	});
+
+	useIsomorphicLayoutEffect(() => {
+		if (refVpWrapper) refOuterContainer.current = refVpWrapper.current;
+	}, [refVpWrapper]);
 
 	const perfectItemSize = useMemo(() => {
 		let perfectItemHeight = viewportHeight / 2;
@@ -65,6 +75,7 @@ export function usePerfectLayout<
 			setStateResponse({
 				perfectGridData,
 				totalHeight,
+				refVpWrapper,
 			});
 		}
 	}, [
@@ -73,6 +84,7 @@ export function usePerfectLayout<
 		viewportWidth,
 		viewportHeight,
 		perfectItemSize.perfectItemHeight,
+		refVpWrapper,
 	]);
 
 	return stateResponse;
