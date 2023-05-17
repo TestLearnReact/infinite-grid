@@ -1,5 +1,7 @@
 import { RefObject } from 'react';
 
+export type TViewportRect = Pick<DOMRect, 'width' | 'height'>;
+
 // export type ItemSizeGetter<ItemType> = (item: ItemType) => number;
 type ItemSizeGetter<ItemType> = ({
 	viewportHeight,
@@ -30,8 +32,6 @@ export interface IUsePerfectLayoutProps<
 > {
 	items: ItemType[];
 	refVpWrapper?: RefObject<O> | null | undefined;
-	viewportHeight: number;
-	viewportWidth: number;
 	idealRowHeight?: number | ItemSizeGetter<ItemType>;
 	idealRowWidth?: number | ItemSizeGetter<ItemType>;
 }

@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { perfectLayout } from './perfect-row-layout';
-import { IUsePerfectLayoutProps, IPerfectLayoutResponse } from './types';
+import {
+	IUsePerfectLayoutProps,
+	IPerfectLayoutResponse,
+	TViewportRect,
+} from './types';
 import { useIsomorphicLayoutEffect } from '../use-virtual-list/hooks'; // todo
+
+const initRect: TViewportRect = {
+	height: 0,
+	width: 0,
+};
 
 export function usePerfectLayout<
 	ItemType extends { ratio: number },
@@ -9,12 +18,12 @@ export function usePerfectLayout<
 >({
 	items,
 	refVpWrapper,
-	viewportHeight,
-	viewportWidth,
 	idealRowHeight,
 	idealRowWidth,
 }: IUsePerfectLayoutProps<ItemType, O>): IPerfectLayoutResponse<ItemType, O> {
 	const refOuterContainer = useRef<O | null>(null);
+
+	const refPrevRect = useRef<TViewportRect>(initRect);
 
 	const [stateResponse, setStateResponse] = useState<
 		IPerfectLayoutResponse<ItemType, O>
@@ -24,9 +33,28 @@ export function usePerfectLayout<
 		refVpWrapper: refOuterContainer,
 	});
 
+	const [viewportRect, setViewportRect] = useState<TViewportRect>(initRect);
+
 	useIsomorphicLayoutEffect(() => {
-		if (refVpWrapper) refOuterContainer.current = refVpWrapper.current;
+		if (refVpWrapper && refVpWrapper.current) {
+			const { height, width } = refVpWrapper.current.getBoundingClientRect();
+			if (refPrevRect.current.width !== width) {
+				setViewportRect({ height, width });
+
+				refPrevRect.current = { height, width };
+			}
+
+			refOuterContainer.current = refVpWrapper.current;
+		}
 	}, [refVpWrapper]);
+
+	const viewportHeight = viewportRect.height;
+	const viewportWidth = viewportRect.width;
+
+	// useEffect(() => {
+	// 	console.log('uuuuu', refVpWrapper?.current?.offsetWidth);
+	// 	if (refVpWrapper) refOuterContainer.current = refVpWrapper.current;
+	// }, [refVpWrapper?.current?.offsetWidth]);
 
 	const perfectItemSize = useMemo(() => {
 		let perfectItemHeight = viewportHeight / 2;
