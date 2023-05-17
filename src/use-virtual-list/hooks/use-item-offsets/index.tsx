@@ -77,7 +77,7 @@ export function useItemOffsets<ItemType>({
 	}, [items, itemSize]);
 
 	return {
-		itemOffsets, //: refItemOffsets.current,
+		itemOffsets: refItemOffsets.current,
 		itemsSnapshotSignature,
 		msDataRef,
 		totalSize: msDataRef.current[msDataRef.current.length - 1]?.end || 0,

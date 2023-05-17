@@ -21,10 +21,9 @@ export function needNewCalcVisbleRange<ItemType>({
 	items: ItemType[];
 	_scrollKey: 'y' | 'x';
 }) {
+	// general rules, scroll independent
 	if (cache.visibleItemRange[0] == -1) return true;
-
 	if (
-		// general rules, scroll independent
 		itemOffsets.length <= 0 ||
 		!items[0] ||
 		msDataRef.current.length < items.length
