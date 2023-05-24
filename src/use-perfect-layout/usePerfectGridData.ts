@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { perfectLayout } from './perfect-row-layout';
 import {
 	IUsePerfectLayoutProps,
-	IPerfectLayoutResponse,
+	IPerfectLayoutHookResponse,
 	TViewportRect,
 } from './types';
 import { useIsomorphicLayoutEffect } from '../use-virtual-list/hooks'; // todo
@@ -12,6 +12,9 @@ const initRect: TViewportRect = {
 	width: 0,
 };
 
+export const isNumber = (val: unknown): val is number =>
+	typeof val === 'number' && !Number.isNaN(val);
+
 export function usePerfectLayout<
 	ItemType extends { ratio: number },
 	O extends HTMLElement = HTMLElement
@@ -19,14 +22,16 @@ export function usePerfectLayout<
 	items,
 	refVpWrapper,
 	idealRowHeight,
-	idealRowWidth,
-}: IUsePerfectLayoutProps<ItemType, O>): IPerfectLayoutResponse<ItemType, O> {
+}: IUsePerfectLayoutProps<ItemType, O>): IPerfectLayoutHookResponse<
+	ItemType,
+	O
+> {
 	const refOuterContainer = useRef<O | null>(null);
-
+	const refIdealRowHeight = useRef(0);
 	const refPrevRect = useRef<TViewportRect>(initRect);
 
 	const [stateResponse, setStateResponse] = useState<
-		IPerfectLayoutResponse<ItemType, O>
+		IPerfectLayoutHookResponse<ItemType, O>
 	>({
 		perfectGridData: [],
 		totalHeight: 0,
@@ -40,7 +45,6 @@ export function usePerfectLayout<
 			const { height, width } = refVpWrapper.current.getBoundingClientRect();
 			if (refPrevRect.current.width !== width) {
 				setViewportRect({ height, width });
-
 				refPrevRect.current = { height, width };
 			}
 
@@ -48,54 +52,32 @@ export function usePerfectLayout<
 		}
 	}, [refVpWrapper]);
 
-	const viewportHeight = viewportRect.height;
-	const viewportWidth = viewportRect.width;
+	useIsomorphicLayoutEffect(() => {
+		refIdealRowHeight.current = viewportRect.width / 2;
 
-	// useEffect(() => {
-	// 	console.log('uuuuu', refVpWrapper?.current?.offsetWidth);
-	// 	if (refVpWrapper) refOuterContainer.current = refVpWrapper.current;
-	// }, [refVpWrapper?.current?.offsetWidth]);
+		if (idealRowHeight)
+			refIdealRowHeight.current = isNumber(idealRowHeight)
+				? idealRowHeight
+				: idealRowHeight({
+						viewportHeight: viewportRect.height,
+						viewportWidth: viewportRect.width,
+				  });
 
-	const perfectItemSize = useMemo(() => {
-		let perfectItemHeight = viewportHeight / 2;
-		let perfectItemWidth = 0;
+		const shouldCalc =
+			items.length > 0 &&
+			viewportRect.width > 0 &&
+			viewportRect.height > 0 &&
+			refIdealRowHeight.current > 0;
 
-		if (idealRowHeight) {
-			if (typeof idealRowHeight === 'function') {
-				perfectItemHeight = idealRowHeight({
-					viewportHeight,
-					viewportWidth,
-				});
-			} else {
-				perfectItemHeight = idealRowHeight;
-			}
-		}
-
-		if (idealRowWidth) {
-			if (typeof idealRowWidth === 'function') {
-				perfectItemWidth = idealRowWidth({
-					viewportHeight,
-					viewportWidth,
-				});
-			} else {
-				perfectItemWidth = idealRowWidth;
-			}
-		}
-
-		return { perfectItemHeight, perfectItemWidth };
-	}, [viewportWidth, viewportHeight, idealRowHeight, idealRowWidth]);
-
-	useEffect(() => {
-		//debugger;
-		if (items.length > 0 && viewportWidth > 0 && viewportHeight > 0) {
+		if (shouldCalc) {
 			/**
 			 * GENERATE PERFECT LAYOUT
 			 */
 			const { perfectGridData, totalHeight } = perfectLayout({
 				inputData: items,
-				viewportWidth,
-				viewportHeight,
-				idealRowHeight: perfectItemSize.perfectItemHeight,
+				viewportWidth: viewportRect.width,
+				viewportHeight: viewportRect.height,
+				idealRowHeight: refIdealRowHeight.current,
 				useNextToLastPartitionsForLastRow: true,
 				optimizeLastRow: { optimize: true, avgLastRowCount: 2 },
 			});
@@ -106,14 +88,36 @@ export function usePerfectLayout<
 				refVpWrapper,
 			});
 		}
-	}, [
-		items,
-		items.length,
-		viewportWidth,
-		viewportHeight,
-		perfectItemSize.perfectItemHeight,
-		refVpWrapper,
-	]);
+	}, [items, viewportRect]);
 
 	return stateResponse;
 }
+
+// const perfectItemSize = useMemo(() => {
+// 	let perfectItemHeight = viewportHeight / 2;
+// 	let perfectItemWidth = 0;
+
+// 	if (idealRowHeight) {
+// 		if (typeof idealRowHeight === 'function') {
+// 			perfectItemHeight = idealRowHeight({
+// 				viewportHeight,
+// 				viewportWidth,
+// 			});
+// 		} else {
+// 			perfectItemHeight = idealRowHeight;
+// 		}
+// 	}
+
+// 	if (idealRowWidth) {
+// 		if (typeof idealRowWidth === 'function') {
+// 			perfectItemWidth = idealRowWidth({
+// 				viewportHeight,
+// 				viewportWidth,
+// 			});
+// 		} else {
+// 			perfectItemWidth = idealRowWidth;
+// 		}
+// 	}
+
+// 	return { perfectItemHeight, perfectItemWidth };
+// }, [viewportWidth, viewportHeight, idealRowHeight, idealRowWidth]);

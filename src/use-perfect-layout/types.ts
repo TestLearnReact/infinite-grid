@@ -2,22 +2,19 @@ import { RefObject } from 'react';
 
 export type TViewportRect = Pick<DOMRect, 'width' | 'height'>;
 
-// export type ItemSizeGetter<ItemType> = (item: ItemType) => number;
-type ItemSizeGetter<ItemType> = ({
+type IPerfectRowSizeGetter = ({
 	viewportHeight,
 	viewportWidth,
-}: //item,
-{
+}: {
 	viewportHeight: number;
 	viewportWidth: number;
-	//item: ItemType;
 }) => number;
 
-type IPerfectGridData<ItemType> = Array<
+export type IPerfectGridData<ItemType> = Array<
 	Array<ItemType & { height: number; width: number }>
 >;
 
-export type IPerfectLayoutResponse<
+export type IPerfectLayoutHookResponse<
 	ItemType,
 	O extends HTMLElement = HTMLElement
 > = {
@@ -32,6 +29,5 @@ export interface IUsePerfectLayoutProps<
 > {
 	items: ItemType[];
 	refVpWrapper?: RefObject<O> | null | undefined;
-	idealRowHeight?: number | ItemSizeGetter<ItemType>;
-	idealRowWidth?: number | ItemSizeGetter<ItemType>;
+	idealRowHeight?: number | IPerfectRowSizeGetter;
 }

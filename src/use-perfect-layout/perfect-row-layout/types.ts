@@ -23,3 +23,11 @@ export interface IPerfectLayoutProps<ItemType> {
 	useNextToLastPartitionsForLastRow?: boolean;
 	optimizeLastRow?: { optimize: boolean; avgLastRowCount: number };
 }
+
+export type IPerfectLayoutResponse<
+	ItemType,
+	O extends HTMLElement = HTMLElement
+> = {
+	perfectGridData: Array<ItemType & { height: number; width: number }>;
+	totalHeight: number;
+};

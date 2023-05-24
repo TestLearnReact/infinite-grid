@@ -1,6 +1,10 @@
 import BreakpointPartition from './utils';
-import { IPerfectLayoutProps, IRequiredInputDataProps } from './types';
-import { IPerfectLayoutResponse } from '../types';
+import {
+	IPerfectLayoutProps,
+	IPerfectLayoutResponse,
+	IRequiredInputDataProps,
+} from './types';
+import { IPerfectLayoutHookResponse } from '../types';
 
 export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	inputData,
@@ -10,14 +14,18 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	idealRowHeight,
 	useNextToLastPartitionsForLastRow = false,
 	optimizeLastRow = { optimize: false, avgLastRowCount: 1 },
-}: IPerfectLayoutProps<ItemType>): IPerfectLayoutResponse<ItemType> {
+}: IPerfectLayoutProps<ItemType>): Omit<
+	IPerfectLayoutHookResponse<ItemType>,
+	'refVpWrapper'
+> {
 	if (viewportHeight <= 0 || viewportWidth <= 0 || inputData.length <= 0)
 		return { perfectGridData: [], totalHeight: 0 }; //todo
 
 	console.log(
 		'->>>>>>> perfectLayout: <<<<<<<-',
 		viewportHeight,
-		viewportWidth
+		viewportWidth,
+		idealRowHeight
 	);
 
 	const idealHeight = idealRowHeight || viewportHeight / 2;

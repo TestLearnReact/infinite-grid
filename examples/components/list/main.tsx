@@ -5,6 +5,7 @@ import InfiniteGrid, {
 	IRenderItem,
 	IRenderItemProps,
 } from '@module/infinite-grid';
+import { WindowWallGallery } from '../window-wall-gallery';
 
 export const LIST_HEIGHT = 300;
 export const LIST_WIDTH = 600;
@@ -83,44 +84,7 @@ export const ListTypes: React.FC = () => {
 			// 	padding: 0,
 			// }}
 		>
-			<InfiniteGrid
-				inputData={dataWidthHeightRatio}
-				renderItem={({ index, gridItemData, offset, size }) => (
-					<RenderItem
-						key={index}
-						index={index}
-						gridItemData={gridItemData}
-						offset={offset}
-						size={size}
-					/>
-				)}
-				//virtualListSubProps={{ overscan: 5 }}
-				// renderItem={({ index, gridItemData, offset, size }) => {
-				// 	let left = 0;
-				// 	return (
-				// 		<div key={index} className={index.toString()}>
-				// 			{gridItemData.map((row, rowI) => {
-				// 				const T = (
-				// 					<div
-				// 						key={row.id}
-				// 						style={{
-				// 							position: 'absolute',
-				// 							top: offset,
-				// 							left: left,
-				// 							paddingLeft: 0,
-				// 							height: size,
-				// 						}}
-				// 					>
-				// 						{row.id}
-				// 					</div>
-				// 				);
-				// 				left += row.width;
-				// 				return T;
-				// 			})}
-				// 		</div>
-				// 	);
-				// }}
-			/>
+			<WindowWallGallery />
 			{/* <VerticalListWindow
 				listHeight={LIST_HEIGHT}
 				listWidth={LIST_WIDTH}

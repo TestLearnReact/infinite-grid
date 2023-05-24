@@ -42,8 +42,11 @@ export enum Direction {
 
 export type VisibleItemDescriptor<ItemType> = {
 	item: ItemType;
+	/** row or column index */
 	itemIndex: number;
+	/** height or width */
 	size: number;
+	/** top or left */
 	offset: number;
 	//listDirection: Direction;
 	//style: CSSProperties;
