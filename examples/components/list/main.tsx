@@ -1,12 +1,77 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { VerticalListWindow } from '../vertikal-list-window';
-import { data, dataWidthHeightRatio } from '../../data';
-import InfiniteGrid from '@module/infinite-grid';
+import { IData2, data, dataWidthHeightRatio } from '../../data';
+import InfiniteGrid, {
+	IRenderItem,
+	IRenderItemProps,
+} from '@module/infinite-grid';
 
 export const LIST_HEIGHT = 300;
 export const LIST_WIDTH = 600;
 
+export const RenderItem: React.FC<IRenderItemProps<IData2>> = ({
+	index,
+	gridItemData,
+	offset,
+	size,
+}) => {
+	let left = 0;
+
+	return (
+		<>
+			{gridItemData.map((row) => {
+				const Item = (
+					<div
+						key={row.id}
+						style={{
+							position: 'absolute',
+							top: offset,
+							left: left,
+							paddingLeft: 0,
+							height: size,
+						}}
+					>
+						{row.id}
+					</div>
+				);
+				left += row.width;
+				return Item;
+			})}
+		</>
+	);
+};
+
 export const ListTypes: React.FC = () => {
+	const RenderItem2 = useCallback(
+		({ index, gridItemData, offset, size }: IRenderItemProps<IData2>) => {
+			let left = 0;
+
+			return (
+				<>
+					{gridItemData.map((row) => {
+						const Item = (
+							<div
+								key={row.id}
+								style={{
+									position: 'absolute',
+									top: offset,
+									left: left,
+									paddingLeft: 0,
+									height: size,
+								}}
+							>
+								{row.id}
+							</div>
+						);
+						left += row.width;
+						return Item;
+					})}
+				</>
+			);
+		},
+		[]
+	);
+
 	return (
 		<div
 			className="_lists"
@@ -18,7 +83,44 @@ export const ListTypes: React.FC = () => {
 			// 	padding: 0,
 			// }}
 		>
-			<InfiniteGrid inputData={dataWidthHeightRatio} />
+			<InfiniteGrid
+				inputData={dataWidthHeightRatio}
+				renderItem={({ index, gridItemData, offset, size }) => (
+					<RenderItem
+						key={index}
+						index={index}
+						gridItemData={gridItemData}
+						offset={offset}
+						size={size}
+					/>
+				)}
+				//virtualListSubProps={{ overscan: 5 }}
+				// renderItem={({ index, gridItemData, offset, size }) => {
+				// 	let left = 0;
+				// 	return (
+				// 		<div key={index} className={index.toString()}>
+				// 			{gridItemData.map((row, rowI) => {
+				// 				const T = (
+				// 					<div
+				// 						key={row.id}
+				// 						style={{
+				// 							position: 'absolute',
+				// 							top: offset,
+				// 							left: left,
+				// 							paddingLeft: 0,
+				// 							height: size,
+				// 						}}
+				// 					>
+				// 						{row.id}
+				// 					</div>
+				// 				);
+				// 				left += row.width;
+				// 				return T;
+				// 			})}
+				// 		</div>
+				// 	);
+				// }}
+			/>
 			{/* <VerticalListWindow
 				listHeight={LIST_HEIGHT}
 				listWidth={LIST_WIDTH}

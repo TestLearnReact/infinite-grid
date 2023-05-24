@@ -1,14 +1,18 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { IInfiniteGridProps, IInputDataMustContain } from './types';
 import { useVirtualList } from '@module/use-virtual-list';
-import usePerfectLayout from '@module/use-perfect-layout';
+import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
 
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	inputData,
 	virtualListSubProps = {
 		overscan: 3,
 		skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
+		useWindowScroll: true,
+		waitScroll: 40,
+		backgroundColor: 'lightgrey', // todo css class?
 	},
+	renderItem,
 }: React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
 	const refOuterWrapper = useRef<HTMLDivElement>(null);
 	const refInnerWrapper = useRef<HTMLDivElement>(null);
@@ -18,7 +22,15 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	const [dataFetched, setDataFetched] = useState<
 		IInfiniteGridProps<ItemType>['inputData']
 	>([]);
-	const [speed, setSpeed] = useState<number>(0);
+	const [_, setSpeed] = useState<number>(0);
+
+	const {
+		overscan,
+		useWindowScroll,
+		waitScroll,
+		skipRenderProps = { scrollSpeedSkip: 12, waitScroll: 40 },
+		backgroundColor,
+	} = virtualListSubProps;
 
 	const { perfectGridData, totalHeight } = usePerfectLayout<
 		ItemType,
@@ -26,54 +38,51 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	>({
 		items: inputData,
 		refVpWrapper: refOuterWrapper,
-		viewportHeight: 937, //viewportRect.height,
-		viewportWidth: 600, // viewportRect.width,
 		idealRowHeight: ({ viewportHeight, viewportWidth }) => viewportWidth / 2,
 	});
 
-	console.log('virtualListSubProps', virtualListSubProps.overscan);
-
 	const { visibleItems, containerStyles, isFetching } = useVirtualList<
-		ItemType,
+		IPerfectGridData<ItemType>[0], //ItemType,
 		HTMLDivElement,
 		HTMLDivElement
 	>({
 		xouterRef: refOuterWrapper,
 		xinnerRef: refInnerWrapper,
-		itemSize: () => 200,
+		itemSize: (item) => item[0].height,
 		listDirection: 0,
-		overscan: virtualListSubProps.overscan,
-		useWindowScroll: true,
-		items: inputData,
-		// loadMoreProps: {
-		// 	loadMoreCount: 200,
-		// 	isItemLoaded: (i) => {
-		// 		return (
-		// 			//dataFetched.length >= 100 ||
-		// 			isItemLoadedArr && isItemLoadedArr[i] == true
-		// 		);
-		// 	},
-		// 	loadMore: async (event) => {
-		// 		return await loadData(event, setDataFetched);
-		// 	},
-		// },
+		overscan,
+		useWindowScroll,
+		items: perfectGridData, //inputData,
 		onScroll: (e) => {
-			if (e.scrollSpeed > 12 && !refSpeedBigger.current) {
+			if (
+				e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
+				!refSpeedBigger.current
+			) {
 				refSpeedBigger.current = true;
 				setSpeed(e.scrollSpeed);
 			}
-			if (e.scrollSpeed <= 12 && refSpeedBigger.current) {
+			if (
+				e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
+				refSpeedBigger.current
+			) {
 				refSpeedBigger.current = false;
 			}
 		},
-		waitScroll: 40,
+		waitScroll,
 		skipRenderProps: virtualListSubProps.skipRenderProps,
 	});
 
 	const shouldRender =
 		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
 
-	console.log('rerender', totalHeight, refOuterWrapper.current?.offsetWidth);
+	console.log(
+		'rerender',
+		shouldRender,
+		visibleItems
+		// perfectGridData,
+		// perfectGridData.length,
+		// totalHeight
+	);
 
 	return (
 		<>
@@ -102,24 +111,17 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 						left: 0,
 						height: containerStyles.innerContainerStyle.totalSize,
 						width: '100%',
-						backgroundColor: refSpeedBigger.current ? 'beige' : 'white',
+						backgroundColor: refSpeedBigger.current ? backgroundColor : 'white',
 					}}
 				>
 					{shouldRender ? (
 						visibleItems.map((item) => {
-							return (
-								<div
-									key={item.item.id}
-									style={{
-										position: 'absolute',
-										top: item.offset,
-										paddingLeft: 0,
-										height: item.size,
-									}}
-								>
-									{item.item.id}
-								</div>
-							);
+							return renderItem({
+								index: item.itemIndex,
+								gridItemData: perfectGridData[item.itemIndex],
+								offset: item.offset,
+								size: item.size,
+							});
 						})
 					) : (
 						<div
