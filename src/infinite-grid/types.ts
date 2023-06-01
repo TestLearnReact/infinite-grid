@@ -1,7 +1,4 @@
-import {
-	IVirtualListProps,
-	VisibleItemDescriptor,
-} from '@module/use-virtual-list';
+import { LoadMoreType, SkipRenderType } from '@module/use-virtual-list';
 import { IPerfectGridData } from '@module/use-perfect-layout';
 
 import { CSSProperties } from 'react';
@@ -15,7 +12,7 @@ export type IRenderItemProps<ItemType extends IInputDataMustContain> = {
 	index: number;
 	gridItemData: IGridItemData<ItemType>; // IPerfectGridData<ItemType>[0];
 	offset: number;
-	size: number;
+	size: number; // test
 };
 
 export type IRenderItem<ItemType extends IInputDataMustContain> = ({
@@ -25,13 +22,13 @@ export type IRenderItem<ItemType extends IInputDataMustContain> = ({
 	size,
 }: IRenderItemProps<ItemType>) => React.ReactNode;
 
-type IVirtualListSubProps<T extends IInputDataMustContain> = Pick<
-	IVirtualListProps<T>,
-	'skipRenderProps' | 'overscan' | 'useWindowScroll' | 'waitScroll'
-> & { backgroundColor: CSSProperties['backgroundColor'] };
-
 export interface IInfiniteGridProps<ItemType extends IInputDataMustContain> {
 	inputData: ItemType[];
-	virtualListSubProps?: IVirtualListSubProps<ItemType>;
 	renderItem: IRenderItem<ItemType>;
+	/** virtual list props*/
+	skipRenderProps: SkipRenderType;
+	overscan?: number;
+	waitScroll?: number;
+	loadMoreProps: LoadMoreType;
+	backgroundColor?: CSSProperties['backgroundColor'];
 }

@@ -25,7 +25,7 @@ export const RenderItem: React.FC<IRenderItemProps<IData2>> = ({
 							width: row.width,
 						}}
 					>
-						{row.id}
+						{`${index}_${row.id}`}
 					</div>
 				);
 				left += row.width;

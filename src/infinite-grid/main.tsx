@@ -1,19 +1,53 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IInfiniteGridProps, IInputDataMustContain } from './types';
 import { useVirtualList } from '@module/use-virtual-list';
 import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
 
-export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
-	inputData,
-	virtualListSubProps = {
-		overscan: 3,
-		skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
-		useWindowScroll: true,
-		waitScroll: 40,
-		backgroundColor: 'lightgrey', // todo css class?
-	},
-	renderItem,
-}: React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
+// virtualListSubProps = {
+// 	overscan: 1,
+// 	skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
+// 	useWindowScroll: true,
+// 	waitScroll: 40,
+// 	//loadMoreProps,
+// 	loadMoreProps: {
+// 		isItemLoaded(index) {
+// 			console.log('?? isItemLoaded', index);
+// 			return false;
+// 		},
+// 		async loadMore(event) {
+// 			console.log('l?? oadMore', event);
+// 			return { hasFetchedMore: true };
+// 		},
+// 		loadMoreCount: 20,
+// 	},
+// 	backgroundColor: 'beige', // todo css class?
+// },
+
+export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
+	props: IInfiniteGridProps<ItemType>
+) {
+	//React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
+
+	const {
+		inputData,
+		renderItem,
+		overscan = 3,
+		skipRenderProps = { scrollSpeedSkip: 12, waitRender: 400 },
+		waitScroll = 40,
+		loadMoreProps = {
+			isItemLoaded(index) {
+				console.log('?? isItemLoaded', index);
+				return false;
+			},
+			async loadMore(event) {
+				console.log('l?? oadMore', event);
+				return { hasFetchedMore: true };
+			},
+			loadMoreCount: 20,
+		},
+		backgroundColor = 'beige', // todo css class?
+	} = props;
+
 	const refOuterWrapper = useRef<HTMLDivElement>(null);
 	const refInnerWrapper = useRef<HTMLDivElement>(null);
 
@@ -24,14 +58,6 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 	>([]);
 	const [_, setSpeed] = useState<number>(0);
 
-	const {
-		overscan,
-		useWindowScroll,
-		waitScroll,
-		skipRenderProps = { scrollSpeedSkip: 12, waitScroll: 40 },
-		backgroundColor,
-	} = virtualListSubProps;
-
 	const { perfectGridData, totalHeight } = usePerfectLayout<
 		ItemType,
 		HTMLDivElement
@@ -41,45 +67,53 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 		idealRowHeight: ({ viewportHeight, viewportWidth }) => viewportWidth / 2,
 	});
 
-	const { visibleItems, containerStyles, isFetching } = useVirtualList<
-		IPerfectGridData<ItemType>[0], //ItemType,
-		HTMLDivElement,
-		HTMLDivElement
-	>({
-		xouterRef: refOuterWrapper,
-		xinnerRef: refInnerWrapper,
-		itemSize: (item) => item[0].height,
-		listDirection: 0,
-		overscan,
-		useWindowScroll,
-		items: perfectGridData, //inputData,
-		onScroll: (e) => {
-			if (
-				e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
-				!refSpeedBigger.current
-			) {
-				refSpeedBigger.current = true;
-				setSpeed(e.scrollSpeed);
-			}
-			if (
-				e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
-				refSpeedBigger.current
-			) {
-				refSpeedBigger.current = false;
-			}
-		},
-		waitScroll,
-		skipRenderProps: virtualListSubProps.skipRenderProps,
-	});
+	const { visibleItems, containerStyles, isFetching, msDataRef } =
+		useVirtualList<
+			IPerfectGridData<ItemType>[0], //ItemType,
+			HTMLDivElement,
+			HTMLDivElement
+		>({
+			xouterRef: refOuterWrapper,
+			xinnerRef: refInnerWrapper,
+			itemSize: (item) => {
+				return item[0].height;
+			},
+			listDirection: 0,
+			overscan,
+			useWindowScroll: true,
+			items: perfectGridData, //inputData,
+			onScroll: (e) => {
+				if (
+					e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
+					!refSpeedBigger.current
+				) {
+					refSpeedBigger.current = true;
+					setSpeed(e.scrollSpeed);
+				}
+				if (
+					e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
+					refSpeedBigger.current
+				) {
+					refSpeedBigger.current = false;
+				}
+			},
+			loadMoreProps: loadMoreProps,
+			waitScroll: waitScroll,
+			skipRenderProps, // { scrollSpeedSkip: 12, waitRender: 40 },
+		});
+
+	// console.log('perfectGridData', perfectGridData);
+	// if (perfectGridData.length <= 0) return;
 
 	const shouldRender =
 		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
 
 	console.log(
 		'rerender',
-		shouldRender,
+		//shouldRender,
 		visibleItems
-		// perfectGridData,
+		// msDataRef,
+		// perfectGridData
 		// perfectGridData.length,
 		// totalHeight
 	);
@@ -130,6 +164,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>({
 								top: 0,
 								left: 0,
 								height: containerStyles.innerContainerStyle.totalSize,
+
 								width: '100%',
 								backgroundColor: 'grey',
 							}}
