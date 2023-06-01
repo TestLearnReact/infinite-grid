@@ -37,26 +37,6 @@ export const WindowWallGallery: React.FC = () => {
 								size={size}
 							/>
 						)}
-						// virtualListSubProps={{
-						// 	loadMoreProps: {
-						// 		isItemLoaded(index) {
-						// 			// console.log('##');
-						// 			return false;
-						// 		},
-						// 		loadMore: async (event) => {
-						// 			console.log('# loadMore...', event);
-						// 			// setEvent(event);
-						// 			await fetchData(event);
-						// 			return { hasFetchedMore: true };
-						// 		},
-						// 		loadMoreCount: 100,
-						// 	},
-						// 	skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
-						// 	overscan: 1,
-						// 	useWindowScroll: true,
-						// 	waitScroll: 40,
-						// 	backgroundColor: 'beige', // todo css class?
-						// }}
 						loadMoreProps={{
 							isItemLoaded(index) {
 								// console.log('##');
@@ -71,7 +51,6 @@ export const WindowWallGallery: React.FC = () => {
 							loadMoreCount: 20,
 						}}
 						overscan={1}
-						// useWindowScroll={true}
 						// waitScroll={40}
 						backgroundColor={'lightGrey'} // todo css class?
 						skipRenderProps={{ scrollSpeedSkip: 12, waitRender: 400 }}

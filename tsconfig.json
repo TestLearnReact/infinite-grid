@@ -21,6 +21,6 @@
 			"@module/infinite-grid": ["./src/infinite-grid/index.ts"]
 		}
 	},
-	"include": ["src", "examples", "./src/**/*.ts"],
+	"include": ["src", "examples", "./src/**/*.ts", "./examples/**/*.ts"],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }
