@@ -75,7 +75,7 @@ export type LoadMoreType = {
 	loadMore: (event: LoadMoreEvent) => Promise<LoadMoreReturn>;
 };
 
-type SkipRenderType = {
+export type SkipRenderType = {
 	scrollSpeedSkip: number;
 	waitRender: number;
 };

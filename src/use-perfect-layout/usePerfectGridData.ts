@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { perfectLayout } from './perfect-row-layout';
 import {
 	IUsePerfectLayoutProps,
@@ -64,6 +64,7 @@ export function usePerfectLayout<
 				  });
 
 		const shouldCalc =
+			items &&
 			items.length > 0 &&
 			viewportRect.width > 0 &&
 			viewportRect.height > 0 &&
@@ -78,9 +79,11 @@ export function usePerfectLayout<
 				viewportWidth: viewportRect.width,
 				viewportHeight: viewportRect.height,
 				idealRowHeight: refIdealRowHeight.current,
-				useNextToLastPartitionsForLastRow: true,
+				//useNextToLastPartitionsForLastRow: false, //true,
 				optimizeLastRow: { optimize: true, avgLastRowCount: 2 },
 			});
+
+			console.log('perfectGridData', perfectGridData);
 
 			setStateResponse({
 				perfectGridData,
@@ -92,32 +95,3 @@ export function usePerfectLayout<
 
 	return stateResponse;
 }
-
-// const perfectItemSize = useMemo(() => {
-// 	let perfectItemHeight = viewportHeight / 2;
-// 	let perfectItemWidth = 0;
-
-// 	if (idealRowHeight) {
-// 		if (typeof idealRowHeight === 'function') {
-// 			perfectItemHeight = idealRowHeight({
-// 				viewportHeight,
-// 				viewportWidth,
-// 			});
-// 		} else {
-// 			perfectItemHeight = idealRowHeight;
-// 		}
-// 	}
-
-// 	if (idealRowWidth) {
-// 		if (typeof idealRowWidth === 'function') {
-// 			perfectItemWidth = idealRowWidth({
-// 				viewportHeight,
-// 				viewportWidth,
-// 			});
-// 		} else {
-// 			perfectItemWidth = idealRowWidth;
-// 		}
-// 	}
-
-// 	return { perfectItemHeight, perfectItemWidth };
-// }, [viewportWidth, viewportHeight, idealRowHeight, idealRowWidth]);

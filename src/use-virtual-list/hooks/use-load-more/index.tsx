@@ -45,7 +45,6 @@ export const useLoadMore = ({
 					startIndex,
 					stopIndex,
 					loadIndex,
-					//scrollOffset: cache.scrollData.scrollOffsetY, //todo x
 					scrollOffset: cache.scrollData.currData[_scrollKey],
 					userScroll: true,
 				});

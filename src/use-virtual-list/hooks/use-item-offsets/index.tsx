@@ -75,7 +75,7 @@ export function useItemOffsets<ItemType>({
 			setItemsSnapshotSignature(Math.random().toString(32));
 		}
 	}, [items, itemSize]);
-
+	//console.log('-------', itemOffsets, msDataRef.current);
 	return {
 		itemOffsets: refItemOffsets.current,
 		itemsSnapshotSignature,

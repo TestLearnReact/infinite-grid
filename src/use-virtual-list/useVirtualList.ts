@@ -65,10 +65,7 @@ export function useVirtualList<
 		useItemOffsets<ItemType>({
 			items,
 			itemSize: refItemSize,
-			//cache,
 		});
-
-	// console.log(itemsSnapshotSignature);
 
 	const { containerStyles, _resize } = useContainerStyle({
 		msDataRef,
@@ -160,7 +157,9 @@ export function useVirtualList<
 		const range = getExtendedVisibleItemRange(
 			containerStyles.outerContainerStyle[_sizeKey],
 			itemSize,
-			items.length,
+			//itemOffsets.length,
+			//items.length
+			msDataRef.current.length,
 			cache.scrollData.currData[_scrollKey],
 			itemOffsets,
 			overscan,
@@ -172,6 +171,24 @@ export function useVirtualList<
 		}
 
 		setCacheValue({ key: 'visibleItemRange', value: range });
+
+		// const visibleItems: VisibleItemDescriptor<ItemType>[] = [];
+		// //		for (let index = range[0]; index < range[0] + range.length; index++) {
+		// for (
+		// 	let index = range[0];
+		// 	index < Math.min(items.length, range[0] + range.length);
+		// 	index++
+		// ) {
+		// 	const item = items[index];
+		// 	const size = msDataRef.current[index].size || 0;
+		// 	const offset = msDataRef.current[index].start;
+		// 	visibleItems.push({
+		// 		item,
+		// 		itemIndex: index,
+		// 		size,
+		// 		offset,
+		// 	});
+		// }
 
 		const visibleItems = range.map(
 			(itemIndex): VisibleItemDescriptor<ItemType> => {
