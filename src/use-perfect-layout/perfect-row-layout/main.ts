@@ -14,6 +14,7 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	idealRowHeight,
 	useNextToLastPartitionsForLastRow = false,
 	optimizeLastRow = { optimize: false, avgLastRowCount: 1 },
+	hasMore = false,
 }: IPerfectLayoutProps<ItemType>): Omit<
 	IPerfectLayoutHookResponse<ItemType>,
 	'refVpWrapper'
@@ -34,7 +35,7 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 
 	const perfectRowCount = _perfectRowsNumber<ItemType>({
 		inputData,
-		viewportWidth: viewportWidth,
+		viewportWidth,
 		idealHeight,
 	});
 
@@ -84,8 +85,18 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 			return returnData;
 		});
 
+		console.log(
+			'partitions',
+			partitions,
+			perfectGridData[perfectGridData.length - 1]
+		);
+
 		// recalculate/resize last row
-		if (optimizeLastRow.optimize && optimizeLastRow.avgLastRowCount > 0) {
+		if (
+			optimizeLastRow.optimize &&
+			optimizeLastRow.avgLastRowCount > 0 &&
+			(perfectGridData[perfectGridData.length - 1].length <= 1 || hasMore) // todo test normal algo
+		) {
 			let rowCount = 0;
 			let summedPartitionRatios = 0;
 			let avgRatios = 0;
@@ -101,10 +112,16 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 				for (let index = rowStart; index <= rowStop; index++) {
 					rowCount += 1;
 
-					summedPartitionRatios += partitions[index].reduce(
-						(sum, el, i) => sum + inputData[index + i].ratio,
-						0
-					);
+					// summedPartitionRatios += partitions[index].reduce((sum, el, i) => {
+					// 	debugger;
+					// 	return sum + inputData[index + i].ratio;
+					// }, 0);
+
+					summedPartitionRatios +=
+						partitions[index].reduce((sum, el, i) => {
+							//debugger;
+							return sum + el;
+						}, 0) / 100;
 				}
 
 				if (rowCount > 0 && summedPartitionRatios > 0) {
@@ -112,6 +129,7 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 					height = viewportWidth / avgRatios;
 
 					const lastRow = perfectGridData[perfectGridData.length - 1];
+
 					const newLastRow = lastRow.map((lastItem) => {
 						return {
 							...lastItem,
@@ -119,6 +137,8 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 							height,
 						};
 					});
+
+					console.log('lastRow', lastRow, 'newLastRow', newLastRow);
 
 					perfectGridData[perfectGridData.length - 1] = newLastRow;
 

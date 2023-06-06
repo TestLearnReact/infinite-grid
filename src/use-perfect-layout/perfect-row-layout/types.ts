@@ -22,6 +22,7 @@ export interface IPerfectLayoutProps<ItemType> {
 	idealRowHeight?: number;
 	useNextToLastPartitionsForLastRow?: boolean;
 	optimizeLastRow?: { optimize: boolean; avgLastRowCount: number };
+	hasMore?: boolean;
 }
 
 export type IPerfectLayoutResponse<
