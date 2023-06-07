@@ -3,31 +3,9 @@ import { IInfiniteGridProps, IInputDataMustContain } from './types';
 import { useVirtualList } from '@module/use-virtual-list';
 import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
 
-// virtualListSubProps = {
-// 	overscan: 1,
-// 	skipRenderProps: { scrollSpeedSkip: 12, waitRender: 400 },
-// 	useWindowScroll: true,
-// 	waitScroll: 40,
-// 	//loadMoreProps,
-// 	loadMoreProps: {
-// 		isItemLoaded(index) {
-// 			console.log('?? isItemLoaded', index);
-// 			return false;
-// 		},
-// 		async loadMore(event) {
-// 			console.log('l?? oadMore', event);
-// 			return { hasFetchedMore: true };
-// 		},
-// 		loadMoreCount: 20,
-// 	},
-// 	backgroundColor: 'beige', // todo css class?
-// },
-
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
-	props: IInfiniteGridProps<ItemType>
+	props: React.PropsWithChildren<IInfiniteGridProps<ItemType>>
 ) {
-	//React.PropsWithChildren<IInfiniteGridProps<ItemType>>) {
-
 	const {
 		inputData,
 		renderItem,
@@ -36,16 +14,15 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		waitScroll = 40,
 		loadMoreProps = {
 			isItemLoaded(index) {
-				console.log('?? isItemLoaded', index);
 				return false;
 			},
 			async loadMore(event) {
-				console.log('l?? oadMore', event);
 				return { hasFetchedMore: true };
 			},
 			loadMoreCount: 20,
 		},
 		backgroundColor = 'beige', // todo css class?
+		idealRowHeight,
 	} = props;
 
 	const refOuterWrapper = useRef<HTMLDivElement>(null);
@@ -64,43 +41,48 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	>({
 		items: inputData,
 		refVpWrapper: refOuterWrapper,
-		idealRowHeight: ({ viewportHeight, viewportWidth }) => viewportWidth / 2,
+		idealRowHeight, //: ({ viewportHeight, viewportWidth }) => 40, //viewportWidth / 10,
 	});
 
-	const { visibleItems, containerStyles, isFetching, msDataRef } =
-		useVirtualList<
-			IPerfectGridData<ItemType>[0], //ItemType,
-			HTMLDivElement,
-			HTMLDivElement
-		>({
-			xouterRef: refOuterWrapper,
-			xinnerRef: refInnerWrapper,
-			itemSize: (item) => {
-				return item[0].height;
-			},
-			listDirection: 0,
-			overscan,
-			useWindowScroll: true,
-			items: perfectGridData, //inputData,
-			onScroll: (e) => {
-				if (
-					e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
-					!refSpeedBigger.current
-				) {
-					refSpeedBigger.current = true;
-					setSpeed(e.scrollSpeed);
-				}
-				if (
-					e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
-					refSpeedBigger.current
-				) {
-					refSpeedBigger.current = false;
-				}
-			},
-			loadMoreProps: loadMoreProps,
-			waitScroll: waitScroll,
-			skipRenderProps, // { scrollSpeedSkip: 12, waitRender: 40 },
-		});
+	const {
+		visibleItems,
+		containerStyles,
+		isFetching,
+		msDataRef,
+		scrollingSpeed,
+	} = useVirtualList<
+		IPerfectGridData<ItemType>[0], //ItemType,
+		HTMLDivElement,
+		HTMLDivElement
+	>({
+		xouterRef: refOuterWrapper,
+		xinnerRef: refInnerWrapper,
+		itemSize: (item) => {
+			return item[0].height;
+		},
+		listDirection: 0,
+		overscan,
+		useWindowScroll: true,
+		items: perfectGridData, //inputData,
+		onScroll: (e) => {
+			if (
+				e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
+				!refSpeedBigger.current
+			) {
+				refSpeedBigger.current = true;
+				setSpeed(e.scrollSpeed);
+			}
+			if (
+				e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
+				refSpeedBigger.current
+			) {
+				refSpeedBigger.current = false;
+			}
+		},
+		loadMoreProps: loadMoreProps,
+		waitScroll: waitScroll,
+		skipRenderProps, // { scrollSpeedSkip: 12, waitRender: 40 },
+	});
 
 	// console.log('perfectGridData', perfectGridData);
 	// if (perfectGridData.length <= 0) return;
@@ -111,7 +93,10 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	console.log(
 		'rerender',
 		//shouldRender,
-		visibleItems
+		visibleItems,
+		scrollingSpeed
+		// totalHeight,
+		// containerStyles.innerContainerStyle
 		// msDataRef,
 		// perfectGridData
 		// perfectGridData.length,
@@ -127,8 +112,8 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 					position: 'absolute',
 					height: '100vh',
 					marginLeft: 0,
-					top: 60,
-					left: 60,
+					top: 0, //60,
+					left: 0, // 60,
 					right: 0,
 					overflow: 'inherit',
 					willChange: 'transform',
@@ -158,19 +143,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 							});
 						})
 					) : (
-						<div
-							style={{
-								position: 'absolute',
-								top: 0,
-								left: 0,
-								height: containerStyles.innerContainerStyle.totalSize,
-
-								width: '100%',
-								backgroundColor: 'grey',
-							}}
-						>
-							Loading...
-						</div>
+						<></>
 					)}
 				</div>
 			</div>
