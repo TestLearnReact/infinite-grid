@@ -1,4 +1,5 @@
 import {
+	IVirtualListHookReturn,
 	LoadMoreType,
 	OnScrollEvent,
 	SkipRenderType,
@@ -60,6 +61,11 @@ export interface IRenderVisibleItemsProps<
 	visibleItems: IOutV<ItemType>;
 	perfectGridData: any;
 	scrollEvent: OnScrollEvent;
+	containerStyles: IVirtualListHookReturn<
+		ItemType,
+		HTMLElement,
+		HTMLElement
+	>['containerStyles'];
 }
 export type IRenderVisibleItems<ItemType extends IInputDataMustContain> = (
 	props: IRenderVisibleItemsProps<ItemType>

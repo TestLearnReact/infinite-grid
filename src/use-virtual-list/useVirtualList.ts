@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
 	Direction,
-	IHookReturn,
+	IVirtualListHookReturn,
 	IVirtualListProps,
 	VisibleItemDescriptor,
 } from './types';
@@ -36,7 +36,7 @@ export function useVirtualList<
 	waitScroll,
 	onScroll,
 	skipRenderProps,
-}: IVirtualListProps<ItemType, O, I>): IHookReturn<ItemType, O, I> {
+}: IVirtualListProps<ItemType, O, I>): IVirtualListHookReturn<ItemType, O, I> {
 	const refOuterContainer = useRef<O | null>(null);
 	const refInnerContainer = useRef<I | null>(null);
 
@@ -172,38 +172,38 @@ export function useVirtualList<
 
 		setCacheValue({ key: 'visibleItemRange', value: range });
 
-		// const visibleItems: VisibleItemDescriptor<ItemType>[] = [];
-		// //		for (let index = range[0]; index < range[0] + range.length; index++) {
-		// for (
-		// 	let index = range[0];
-		// 	index < Math.min(items.length, range[0] + range.length);
-		// 	index++
-		// ) {
-		// 	const item = items[index];
-		// 	const size = msDataRef.current[index].size || 0;
-		// 	const offset = msDataRef.current[index].start;
-		// 	visibleItems.push({
-		// 		item,
-		// 		itemIndex: index,
-		// 		size,
-		// 		offset,
-		// 	});
-		// }
+		const visibleItems: VisibleItemDescriptor<ItemType>[] = [];
+		//		for (let index = range[0]; index < range[0] + range.length; index++) {
+		for (
+			let index = range[0];
+			index < Math.min(items.length, range[0] + range.length);
+			index++
+		) {
+			const item = items[index];
+			const size = msDataRef.current[index].size || 0;
+			const offset = msDataRef.current[index].start;
+			visibleItems.push({
+				item,
+				itemIndex: index,
+				size,
+				offset,
+			});
+		}
 
-		const visibleItems = range.map(
-			(itemIndex): VisibleItemDescriptor<ItemType> => {
-				const item = items[itemIndex];
-				const size = msDataRef.current[itemIndex].size || 0;
-				const offset = msDataRef.current[itemIndex].start;
+		// const visibleItems = range.map(
+		// 	(itemIndex): VisibleItemDescriptor<ItemType> => {
+		// 		const item = items[itemIndex];
+		// 		const size = msDataRef.current[itemIndex].size || 0;
+		// 		const offset = msDataRef.current[itemIndex].start;
 
-				return {
-					item,
-					itemIndex,
-					size,
-					offset,
-				};
-			}
-		);
+		// 		return {
+		// 			item,
+		// 			itemIndex,
+		// 			size,
+		// 			offset,
+		// 		};
+		// 	}
+		// );
 
 		setHookReturnState({
 			visibleItems: visibleItems,

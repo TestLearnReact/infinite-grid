@@ -1,8 +1,8 @@
-import { CSSProperties, RefCallback, RefObject, UIEventHandler } from 'react';
-import { IContainerStyle, IReturnContainerStyles } from './hooks';
+import { RefObject } from 'react';
+import { IReturnContainerStyles } from './hooks';
 import { IScrollData } from './hooks/use-scroll-offset/types';
 
-export interface IHookReturn<
+export interface IVirtualListHookReturn<
 	ItemType,
 	O extends HTMLElement = HTMLElement,
 	I extends HTMLElement = O
