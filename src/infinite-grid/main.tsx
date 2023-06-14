@@ -1,14 +1,26 @@
 import React, { useRef, useState } from 'react';
 import { IInfiniteGridProps, IInputDataMustContain } from './types';
-import { useVirtualList } from '@module/use-virtual-list';
+import { OnScrollEvent, useVirtualList } from '@module/use-virtual-list';
 import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
 
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	props: React.PropsWithChildren<IInfiniteGridProps<ItemType>>
 ) {
+	const refOuterWrapper = useRef<HTMLDivElement>(null);
+	const refInnerWrapper = useRef<HTMLDivElement>(null);
+
+	const refSpeedBigger = useRef<boolean>(false);
+	const refScollEvent = useRef<OnScrollEvent>({
+		currData: { timestamp: 0, x: 0, y: 1 },
+		prevData: { timestamp: 0, x: 0, y: 0 },
+		scrollSpeed: 0,
+	});
+
+	const [_, setSpeed] = useState<number>(0);
+
 	const {
 		inputData,
-		renderItem,
+		renderVisibleItems,
 		overscan = 3,
 		skipRenderProps = { scrollSpeedSkip: 12, waitRender: 400 },
 		waitScroll = 40,
@@ -25,16 +37,6 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		idealRowHeight,
 	} = props;
 
-	const refOuterWrapper = useRef<HTMLDivElement>(null);
-	const refInnerWrapper = useRef<HTMLDivElement>(null);
-
-	const refSpeedBigger = useRef<boolean>(false);
-
-	const [dataFetched, setDataFetched] = useState<
-		IInfiniteGridProps<ItemType>['inputData']
-	>([]);
-	const [_, setSpeed] = useState<number>(0);
-
 	const { perfectGridData, totalHeight } = usePerfectLayout<
 		ItemType,
 		HTMLDivElement
@@ -44,64 +46,46 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		idealRowHeight, //: ({ viewportHeight, viewportWidth }) => 40, //viewportWidth / 10,
 	});
 
-	const {
-		visibleItems,
-		containerStyles,
-		isFetching,
-		msDataRef,
-		scrollingSpeed,
-	} = useVirtualList<
-		IPerfectGridData<ItemType>[0], //ItemType,
-		HTMLDivElement,
-		HTMLDivElement
-	>({
-		xouterRef: refOuterWrapper,
-		xinnerRef: refInnerWrapper,
-		itemSize: (item) => {
-			return item[0].height;
-		},
-		listDirection: 0,
-		overscan,
-		useWindowScroll: true,
-		items: perfectGridData, //inputData,
-		onScroll: (e) => {
-			if (
-				e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
-				!refSpeedBigger.current
-			) {
-				refSpeedBigger.current = true;
-				setSpeed(e.scrollSpeed);
-			}
-			if (
-				e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
-				refSpeedBigger.current
-			) {
-				refSpeedBigger.current = false;
-			}
-		},
-		loadMoreProps: loadMoreProps,
-		waitScroll: waitScroll,
-		skipRenderProps, // { scrollSpeedSkip: 12, waitRender: 40 },
-	});
-
-	// console.log('perfectGridData', perfectGridData);
-	// if (perfectGridData.length <= 0) return;
+	const { visibleItems, containerStyles, isFetching, msDataRef } =
+		useVirtualList<
+			IPerfectGridData<ItemType>[0], //ItemType,
+			HTMLDivElement,
+			HTMLDivElement
+		>({
+			xouterRef: refOuterWrapper,
+			xinnerRef: refInnerWrapper,
+			itemSize: (item) => {
+				return item[0].height;
+			},
+			listDirection: 0,
+			overscan,
+			useWindowScroll: true,
+			items: perfectGridData, //inputData,
+			onScroll: (e) => {
+				refScollEvent.current = e;
+				if (
+					e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
+					!refSpeedBigger.current
+				) {
+					refSpeedBigger.current = true;
+					setSpeed(e.scrollSpeed);
+				}
+				if (
+					e.scrollSpeed <= skipRenderProps.scrollSpeedSkip &&
+					refSpeedBigger.current
+				) {
+					refSpeedBigger.current = false;
+				}
+			},
+			loadMoreProps: loadMoreProps,
+			waitScroll: waitScroll,
+			skipRenderProps,
+		});
 
 	const shouldRender =
 		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
 
-	console.log(
-		'rerender',
-		//shouldRender,
-		visibleItems,
-		scrollingSpeed
-		// totalHeight,
-		// containerStyles.innerContainerStyle
-		// msDataRef,
-		// perfectGridData
-		// perfectGridData.length,
-		// totalHeight
-	);
+	console.log('rerender: ', visibleItems, 'msDataRef: ', msDataRef);
 
 	return (
 		<>
@@ -112,8 +96,8 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 					position: 'absolute',
 					height: '100vh',
 					marginLeft: 0,
-					top: 0, //60,
-					left: 0, // 60,
+					top: 0,
+					left: 0,
 					right: 0,
 					overflow: 'inherit',
 					willChange: 'transform',
@@ -133,18 +117,11 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 						backgroundColor: refSpeedBigger.current ? backgroundColor : 'white',
 					}}
 				>
-					{shouldRender ? (
-						visibleItems.map((item) => {
-							return renderItem({
-								index: item.itemIndex,
-								gridItemData: perfectGridData[item.itemIndex],
-								offset: item.offset,
-								size: item.size,
-							});
-						})
-					) : (
-						<></>
-					)}
+					{renderVisibleItems({
+						visibleItems,
+						perfectGridData,
+						scrollEvent: refScollEvent.current,
+					})}
 				</div>
 			</div>
 		</>

@@ -10,8 +10,10 @@ type IPerfectRowSizeGetter = ({
 	viewportWidth: number;
 }) => number;
 
+type IOutputDataContain = { height: number; width: number };
+
 export type IPerfectGridData<ItemType> = Array<
-	Array<ItemType & { height: number; width: number }>
+	Array<ItemType & IOutputDataContain>
 >;
 
 export type IPerfectLayoutHookResponse<
