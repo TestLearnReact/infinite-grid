@@ -15,13 +15,13 @@ type IInnerContainerStyle = {
 	widthInner: number;
 };
 
-export type IContainerStyle = {
+export type IContainerStyles = {
 	outerContainerStyle: IOuterContainerStyle;
 	innerContainerStyle: IInnerContainerStyle;
 };
 
 export type IReturnContainerStyles = {
-	containerStyles: IContainerStyle;
+	containerStyles: IContainerStyles;
 	measured: number;
 	_resize: boolean;
 };

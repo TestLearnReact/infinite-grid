@@ -85,12 +85,6 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 			return returnData;
 		});
 
-		console.log(
-			'partitions',
-			partitions,
-			perfectGridData[perfectGridData.length - 1]
-		);
-
 		// recalculate/resize last row
 		if (
 			optimizeLastRow.optimize &&
@@ -137,8 +131,6 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 							height,
 						};
 					});
-
-					console.log('lastRow', lastRow, 'newLastRow', newLastRow);
 
 					perfectGridData[perfectGridData.length - 1] = newLastRow;
 

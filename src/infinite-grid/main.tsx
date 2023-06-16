@@ -1,7 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { IInfiniteGridProps, IInputDataMustContain } from './types';
 import { OnScrollEvent, useVirtualList } from '@module/use-virtual-list';
 import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
+import {
+	MyForm,
+	RefType,
+	RenderVisibleItems,
+} from '../../examples/components/window-wall-gallery/components';
+
+// export interface RefType {
+// 	scrollEvent: (event: OnScrollEvent) => void;
+// }
 
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	props: React.PropsWithChildren<IInfiniteGridProps<ItemType>>
@@ -16,11 +25,14 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		scrollSpeed: 0,
 	});
 
+	const refForwarded = useRef<RefType>({
+		scrollEvent: (event: OnScrollEvent) => null,
+	});
+
 	const [_, setSpeed] = useState<number>(0);
 
 	const {
 		inputData,
-		renderVisibleItems,
 		overscan = 3,
 		skipRenderProps = { scrollSpeedSkip: 12, waitRender: 400 },
 		waitScroll = 40,
@@ -35,6 +47,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		},
 		backgroundColor = 'beige', // todo css class?
 		idealRowHeight,
+		renderVisibleItems,
 	} = props;
 
 	const { perfectGridData, totalHeight } = usePerfectLayout<
@@ -63,6 +76,8 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 			items: perfectGridData, //inputData,
 			onScroll: (e) => {
 				refScollEvent.current = e;
+				refForwarded.current.scrollEvent(e);
+
 				if (
 					e.scrollSpeed > skipRenderProps.scrollSpeedSkip &&
 					!refSpeedBigger.current
@@ -85,7 +100,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	const shouldRender =
 		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
 
-	console.log('rerender: ', visibleItems, 'msDataRef: ', msDataRef);
+	console.log('rerender: ', visibleItems);
 
 	return (
 		<>
@@ -118,10 +133,33 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 					}}
 				>
 					{renderVisibleItems({
+						//ref: childRef,
 						visibleItems,
 						perfectGridData,
-						scrollEvent: refScollEvent.current,
+						//scrollEvent: refScollEvent.current,
+						containerStyles,
+						refOuterWrapper,
+						refInnerWrapper,
+						//refScollEvent,
+						refForwarded: refForwarded,
 					})}
+
+					{/* <MyForm
+						ref={refForaward}
+						visibleItems={visibleItems}
+						perfectGridData={perfectGridData}
+						containerStyles={containerStyles}
+						refOuterWrapper={refOuterWrapper}
+						refInnerWrapper={refInnerWrapper}
+					/> */}
+					{/* <RenderVisibleItems
+						ref={refForaward}
+						visibleItems={visibleItems}
+						perfectGridData={perfectGridData}
+						containerStyles={containerStyles}
+						refOuterWrapper={refOuterWrapper}
+						refInnerWrapper={refInnerWrapper}
+					/> */}
 				</div>
 			</div>
 		</>
@@ -129,3 +167,17 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 }
 
 export { InfiniteGrid };
+
+{
+	/* {renderVisibleItems({
+						ref: childRef,
+						visibleItems,
+						perfectGridData,
+						scrollEvent: refScollEvent.current,
+						containerStyles,
+						refOuterWrapper,
+						refInnerWrapper,
+						refScollEvent,
+						onScroll,
+					})} */
+}

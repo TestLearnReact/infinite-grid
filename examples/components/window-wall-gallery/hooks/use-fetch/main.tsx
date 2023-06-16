@@ -66,7 +66,7 @@ function useFetch<T = unknown>({
 	const fetchData = useCallback(async (event: LoadMoreEvent) => {
 		// Do nothing if the url is not given
 		if (!event) return;
-		console.log('cache.current[loadIndex]', cache.current);
+		console.log('cache.current[loadIndex]', event.loadIndex, cache.current);
 
 		cancelRequest.current = false;
 
@@ -94,7 +94,7 @@ function useFetch<T = unknown>({
 		// }
 
 		try {
-			const sto = (loadIndex + 1) * 50;
+			const sto = (loadIndex + 1) * 1000;
 			const sta = 0; //sto - 50;
 
 			const dataFetched = dataWidthHeightRatio.slice(sta, sto);
@@ -116,6 +116,11 @@ function useFetch<T = unknown>({
 
 			if (dataFetched.length <= 0) {
 				// isItemLoadedArr[loadIndex] = false;
+				return { hasFetchedMore: false };
+			}
+
+			if (cache.current[loadIndex]) {
+				//debugger;
 				return { hasFetchedMore: false };
 			}
 

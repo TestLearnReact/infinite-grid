@@ -81,12 +81,10 @@ export function usePerfectLayout<
 				idealRowHeight: refIdealRowHeight.current,
 				//useNextToLastPartitionsForLastRow: false, //true,
 				optimizeLastRow: { optimize: true, avgLastRowCount: 2 },
-				opts: { margin: 1 },
+				opts: { margin: 0 },
 				hasMore: true,
 			});
-
 			console.log('perfectGridData', perfectGridData);
-
 			setStateResponse({
 				perfectGridData,
 				totalHeight,

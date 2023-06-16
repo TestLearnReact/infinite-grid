@@ -6,6 +6,8 @@ type ItemSizeGetter = ({
 	viewportWidth: number;
 }) => number;
 
+export type IIdealRowHeight = number | ItemSizeGetter;
+
 type IOptions = {
 	margin: number;
 	idealRowHeight?: number | ItemSizeGetter;
