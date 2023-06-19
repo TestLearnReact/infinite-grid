@@ -1,16 +1,8 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IInfiniteGridProps, IInputDataMustContain } from './types';
 import { OnScrollEvent, useVirtualList } from '@module/use-virtual-list';
 import usePerfectLayout, { IPerfectGridData } from '@module/use-perfect-layout';
-import {
-	MyForm,
-	RefType,
-	RenderVisibleItems,
-} from '../../examples/components/window-wall-gallery/components';
-
-// export interface RefType {
-// 	scrollEvent: (event: OnScrollEvent) => void;
-// }
+import { RefType } from '../../examples/components/window-wall-gallery/components';
 
 export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 	props: React.PropsWithChildren<IInfiniteGridProps<ItemType>>
@@ -133,33 +125,13 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 					}}
 				>
 					{renderVisibleItems({
-						//ref: childRef,
 						visibleItems,
 						perfectGridData,
-						//scrollEvent: refScollEvent.current,
 						containerStyles,
 						refOuterWrapper,
 						refInnerWrapper,
-						//refScollEvent,
 						refForwarded: refForwarded,
 					})}
-
-					{/* <MyForm
-						ref={refForaward}
-						visibleItems={visibleItems}
-						perfectGridData={perfectGridData}
-						containerStyles={containerStyles}
-						refOuterWrapper={refOuterWrapper}
-						refInnerWrapper={refInnerWrapper}
-					/> */}
-					{/* <RenderVisibleItems
-						ref={refForaward}
-						visibleItems={visibleItems}
-						perfectGridData={perfectGridData}
-						containerStyles={containerStyles}
-						refOuterWrapper={refOuterWrapper}
-						refInnerWrapper={refInnerWrapper}
-					/> */}
 				</div>
 			</div>
 		</>
@@ -167,17 +139,3 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 }
 
 export { InfiniteGrid };
-
-{
-	/* {renderVisibleItems({
-						ref: childRef,
-						visibleItems,
-						perfectGridData,
-						scrollEvent: refScollEvent.current,
-						containerStyles,
-						refOuterWrapper,
-						refInnerWrapper,
-						refScollEvent,
-						onScroll,
-					})} */
-}
