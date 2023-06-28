@@ -1,13 +1,7 @@
-import React, {
-	Ref,
-	useCallback,
-	useEffect,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from 'react';
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import {
+	ForwardedRefType,
 	IInputDataMustContain,
 	IOutV,
 	IRenderVisibleItemsProps,
@@ -15,81 +9,18 @@ import {
 } from '@module/infinite-grid';
 import { IData2 } from '../../../../data';
 
-export interface RefType {
-	scrollEvent: (event: OnScrollEvent) => void;
-	//testNumber: (n: number) => number;
-}
+import './style.css';
 
-export const MyForm = React.forwardRef(
-	<ItemType extends IInputDataMustContain>(
-		{ visibleItems, containerStyles }: IRenderVisibleItemsProps<ItemType>,
-		ref: Ref<RefType>
-	) => {
-		//const [state, setState] = useState<IOutV<IData2>>([]);
-		const [state, setState] = useState<IOutV<ItemType>>([]);
-
-		const refScollEvent = useRef<OnScrollEvent>({
-			currData: { timestamp: 0, x: 0, y: 0 },
-			prevData: { timestamp: 0, x: 0, y: 0 },
-			scrollSpeed: 0,
-		});
-
-		const viewportHeight = containerStyles.outerContainerStyle.height;
-
-		useImperativeHandle(
-			ref,
-			() => {
-				return {
-					scrollEvent(e) {
-						console.log('child:...', e);
-						refScollEvent.current = e;
-					},
-					// testNumber(n) {
-					// 	return n;
-					// },
-				};
-			},
-			[]
-		);
-
-		useEffect(() => {
-			//const vis: IOutV<IData2> = [];
-			const vis: IOutV<ItemType> = [];
-			const scr = refScollEvent.current.currData.y + viewportHeight / 2;
-
-			visibleItems.map((item) => {
-				if (item.offset <= scr) vis.push(item);
-			});
-
-			console.log('...', viewportHeight, refScollEvent.current.currData.y, scr);
-
-			setState(vis);
-		}, [visibleItems, viewportHeight, refScollEvent.current.currData.y]);
-
-		if (visibleItems.length <= 0) return null;
-
-		return (
-			<>
-				{state.map((visibleRow, visibleRowIndex) => {
-					return (
-						/**
-						 * visibleRow: {item: Array(10), itemIndex: 0, size: 39.8, offset: 0}
-						 * visibleRow: {item: Array(11), itemIndex: 1, size: 39.8, offset: 39.8}
-						 *  */
-						<RenderVisibleItemsPerRow
-							key={visibleRowIndex}
-							visibleRowData={visibleRow}
-						/>
-					);
-				})}
-			</>
-		);
-	}
-);
-MyForm.displayName = 'MyForm';
+type IRenderData = {
+	vStartOnVp: number;
+	vEndOnVp: number;
+	vEndPrev: number;
+	vEndOnVpPrev: number;
+	biggestLastEnd: number;
+};
 
 export const RenderVisibleItems = React.forwardRef<
-	RefType,
+	ForwardedRefType,
 	IRenderVisibleItemsProps<IData2>
 >(
 	(
@@ -97,50 +28,84 @@ export const RenderVisibleItems = React.forwardRef<
 
 		ref
 	) => {
-		const [state, setState] = useState<IOutV<IData2>>([]);
+		const [visibleItemsOnVp, setVisibleItemsOnVp] = useState<IOutV<IData2>>([]);
 
 		const refScollEvent = useRef<OnScrollEvent>({
-			currData: { timestamp: 0, x: 0, y: 0 },
-			prevData: { timestamp: 0, x: 0, y: 0 },
+			currData: { timestamp: 0, x: 0, y: window.scrollY },
+			prevData: { timestamp: 0, x: 0, y: -1 },
 			scrollSpeed: 0,
 		});
 
+		const refRenderData = useRef<IRenderData>({
+			vStartOnVp: 0,
+			vEndOnVp: 0,
+			vEndPrev: 0,
+			vEndOnVpPrev: 0,
+			biggestLastEnd: 0,
+		});
+
 		const viewportHeight = containerStyles.outerContainerStyle.height;
+		const scrollForward =
+			refScollEvent.current.currData.y > refScollEvent.current.prevData.y;
+
+		const totalSize = containerStyles.innerContainerStyle.totalSize;
+		const lastOffset =
+			visibleItems[visibleItems.length - 1].offset +
+			visibleItems[visibleItems.length - 1].size;
 
 		useImperativeHandle(
 			ref,
 			() => {
 				return {
 					scrollEvent(e) {
-						console.log('child:', e);
 						refScollEvent.current = e;
 					},
-					// testNumber(n) {
-					// 	return n;
-					// },
 				};
 			},
 			[]
 		);
 
 		useEffect(() => {
-			const vis: IOutV<IData2> = [];
-			const scr = refScollEvent.current.currData.y + viewportHeight / 2;
+			const visibleItemsOnScreen: IOutV<IData2> = [];
+			const renderUntilScrollOffset =
+				refScollEvent.current.currData.y + viewportHeight / 2;
+
+			let vStartOnVp = 0;
 
 			visibleItems.map((item) => {
-				if (item.offset <= scr) vis.push(item);
+				if (
+					item.offset <= renderUntilScrollOffset ||
+					refRenderData.current.biggestLastEnd >= item.itemIndex ||
+					totalSize == lastOffset
+				) {
+					visibleItemsOnScreen.push(item);
+
+					if (item.offset <= refScollEvent.current.currData.y)
+						vStartOnVp = item.itemIndex;
+				}
 			});
 
-			console.log('...', viewportHeight, refScollEvent.current.currData.y, scr);
+			refRenderData.current.vEndOnVpPrev = refRenderData.current.vEndOnVp;
 
-			setState(vis);
-		}, [visibleItems, viewportHeight, refScollEvent.current.currData.y]);
+			refRenderData.current.vStartOnVp = vStartOnVp;
+			refRenderData.current.vEndOnVp =
+				visibleItemsOnScreen[visibleItemsOnScreen.length - 1].itemIndex;
 
-		if (visibleItems.length <= 0) return null;
+			if (refRenderData.current.vEndOnVp > refRenderData.current.biggestLastEnd)
+				refRenderData.current.biggestLastEnd = refRenderData.current.vEndOnVp;
+
+			setVisibleItemsOnVp(visibleItemsOnScreen);
+		}, [viewportHeight, visibleItems, scrollForward, totalSize, lastOffset]);
+
+		if (visibleItems.length <= 0 || visibleItemsOnVp.length <= 0) {
+			return null;
+		}
+
+		console.log('refRenderData.current', refRenderData.current);
 
 		return (
 			<>
-				{state.map((visibleRow, visibleRowIndex) => {
+				{visibleItemsOnVp.map((visibleRow, visibleRowIndex) => {
 					return (
 						/**
 						 * visibleRow: {item: Array(10), itemIndex: 0, size: 39.8, offset: 0}
@@ -149,38 +114,16 @@ export const RenderVisibleItems = React.forwardRef<
 						<RenderVisibleItemsPerRow
 							key={visibleRowIndex}
 							visibleRowData={visibleRow}
+							renderData={refRenderData.current}
+							scrollForward={scrollForward}
 						/>
 					);
 				})}
 			</>
 		);
-
-		// renderVisibleItems={({
-		// 	visibleItems,
-		// 	perfectGridData,
-		// 	scrollEvent,
-		// 	containerStyles,
-		// 	refOuterWrapper,
-		// 	refInnerWrapper,
-		// 	refScollEvent,
-		// 	onScroll,
-		// 	ref,
-		// }) => (
-		// 	<RenderVisibleItems
-		// 		ref={ref}
-		// 		visibleItems={visibleItems}
-		// 		perfectGridData={perfectGridData}
-		// 		scrollEvent={scrollEvent}
-		// 		containerStyles={containerStyles}
-		// 		refOuterWrapper={refOuterWrapper}
-		// 		onScroll={onScroll}
-		// 		refInnerWrapper={refInnerWrapper}
-		// 		refScollEvent={refScollEvent}
-		// 	/>
-		// )}
 	}
 );
-RenderVisibleItems.displayName = 'RenderVisibleItems2';
+RenderVisibleItems.displayName = 'RenderVisibleItems';
 
 /**
  *
@@ -188,14 +131,17 @@ RenderVisibleItems.displayName = 'RenderVisibleItems2';
 interface IRenderVisibleItemsPerRow<ItemType extends IInputDataMustContain> {
 	/** {item: Array(10), itemIndex: 0, size: 39.8, offset: 0} */
 	visibleRowData: IOutV<ItemType>[0];
+	renderData: IRenderData;
+	scrollForward: boolean;
 }
 
 export const RenderVisibleItemsPerRow: React.FC<
 	IRenderVisibleItemsPerRow<IData2>
-> = ({ visibleRowData }) => {
+> = ({ visibleRowData, renderData, scrollForward }) => {
 	if (!visibleRowData.item || visibleRowData.item.length <= 0) return null;
 
 	let left = 0;
+	let count = 0;
 
 	return (
 		<>
@@ -206,9 +152,13 @@ export const RenderVisibleItemsPerRow: React.FC<
 						visibleRowDataItem={outputItem}
 						left={left}
 						visibleRowData={visibleRowData}
+						rowItemCount={o}
+						renderData={renderData}
+						scrollForward={scrollForward}
 					/>
 				);
 				left = left + outputItem.width;
+				count++;
 				return Item;
 			})}
 		</>
@@ -222,18 +172,53 @@ interface IRenderItem<ItemType extends IInputDataMustContain> {
 	visibleRowDataItem: IOutV<ItemType>[0]['item'][0];
 	visibleRowData: Omit<IOutV<ItemType>[0], 'item'>;
 	left: number;
+	rowItemCount: number;
+	renderData: IRenderData;
+	scrollForward: boolean;
 }
 
-//export const RenderItem: React.FC<IRenderItem<IData2>> = ({
 export const RenderItem: React.FC<IRenderItem<IData2>> = ({
 	visibleRowDataItem,
 	visibleRowData,
 	left,
+	rowItemCount,
+	scrollForward,
+	renderData,
 }) => {
+	const [showClass, setShowClass] = useState(
+		scrollForward && visibleRowData.itemIndex > renderData.vEndOnVpPrev
+			? 'hide'
+			: 'showed'
+	);
+
+	useEffect(() => {
+		const wait = Math.max(
+			visibleRowData.itemIndex -
+				Math.max(renderData.vStartOnVp, renderData.vEndOnVpPrev),
+			0
+		);
+		const timer = setTimeout(() => {
+			setShowClass('showed');
+		}, wait * 300 + rowItemCount * 40);
+
+		return () => {
+			if (timer !== null) {
+				clearTimeout(timer);
+			}
+		};
+	}, [
+		rowItemCount,
+		renderData.vEndOnVpPrev,
+		renderData.vStartOnVp,
+		visibleRowData.itemIndex,
+	]);
+
+	const className = showClass;
+
 	return (
 		<div
 			key={visibleRowDataItem.id}
-			className={`_item${visibleRowDataItem.id}`}
+			className={className}
 			style={{
 				position: 'absolute',
 				height: visibleRowDataItem.height,

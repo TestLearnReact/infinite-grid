@@ -5,7 +5,7 @@ import InfiniteGrid, { LoadMoreEvent } from '@module/infinite-grid';
 import { RenderItem } from './components/RenderItem';
 import useFetch from './hooks/use-fetch/main';
 import useRatio from './hooks/use-ratio/main';
-import { MyForm, RenderVisibleItems } from './components';
+import { RenderVisibleItems } from './components';
 
 const url = 'http://jsonplaceholder.typicode.com/posts';
 
@@ -61,13 +61,14 @@ export const WindowWallGallery: React.FC = () => {
 							refHasFetched.current[event.loadIndex] = true;
 							return { hasFetchedMore: true };
 						},
-						loadMoreCount: 80,
+						loadMoreCount: 200, //80,
 					}}
 					overscan={10}
 					backgroundColor={'lightGrey'} // todo css class?
 					skipRenderProps={{ scrollSpeedSkip: 12, waitRender: 400 }}
-					renderVisibleItems={(props) => (
-						<MyForm {...props} ref={props.refForwarded} />
+					renderVisibleItems={({ ...props }) => (
+						// eslint-disable-next-line react/prop-types
+						<RenderVisibleItems {...props} ref={props.refForwarded} />
 					)}
 				/>
 			</div>
