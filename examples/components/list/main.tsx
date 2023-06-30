@@ -1,77 +1,74 @@
 import React, { useCallback } from 'react';
 import { VerticalListWindow } from '../vertikal-list-window';
 import { IData2, data, dataWidthHeightRatio } from '../../data';
-import InfiniteGrid, {
-	IRenderItem,
-	IRenderItemProps,
-} from '@module/infinite-grid';
 import { WindowWallGallery } from '../window-wall-gallery';
+import { WallGallery } from '../../Window-Wall-Gallery';
 
 export const LIST_HEIGHT = 300;
 export const LIST_WIDTH = 600;
 
-export const RenderItem: React.FC<IRenderItemProps<IData2>> = ({
-	index,
-	gridItemData,
-	offset,
-	size,
-}) => {
-	let left = 0;
+// export const RenderItem: React.FC<IRenderItemProps<IData2>> = ({
+// 	index,
+// 	gridItemData,
+// 	offset,
+// 	size,
+// }) => {
+// 	let left = 0;
 
-	return (
-		<>
-			{gridItemData.map((row) => {
-				const Item = (
-					<div
-						key={row.id}
-						style={{
-							position: 'absolute',
-							top: offset,
-							left: left,
-							paddingLeft: 0,
-							height: size,
-						}}
-					>
-						{row.id}
-					</div>
-				);
-				left += row.width;
-				return Item;
-			})}
-		</>
-	);
-};
+// 	return (
+// 		<>
+// 			{gridItemData.map((row) => {
+// 				const Item = (
+// 					<div
+// 						key={row.id}
+// 						style={{
+// 							position: 'absolute',
+// 							top: offset,
+// 							left: left,
+// 							paddingLeft: 0,
+// 							height: size,
+// 						}}
+// 					>
+// 						{row.id}
+// 					</div>
+// 				);
+// 				left += row.width;
+// 				return Item;
+// 			})}
+// 		</>
+// 	);
+// };
 
 export const ListTypes: React.FC = () => {
-	const RenderItem2 = useCallback(
-		({ index, gridItemData, offset, size }: IRenderItemProps<IData2>) => {
-			let left = 0;
+	// const RenderItem2 = useCallback(
+	// 	({ index, gridItemData, offset, size }: IRenderItemProps<IData2>) => {
+	// 		let left = 0;
 
-			return (
-				<>
-					{gridItemData.map((row) => {
-						const Item = (
-							<div
-								key={row.id}
-								style={{
-									position: 'absolute',
-									top: offset,
-									left: left,
-									paddingLeft: 0,
-									height: size,
-								}}
-							>
-								{row.id}
-							</div>
-						);
-						left += row.width;
-						return Item;
-					})}
-				</>
-			);
-		},
-		[]
-	);
+	// 		return (
+	// 			<>
+	// 				{gridItemData.map((row) => {
+	// 					const Item = (
+	// 						<div
+	// 							key={row.id}
+	// 							style={{
+	// 								position: 'absolute',
+	// 								top: offset,
+	// 								left: left,
+	// 								paddingLeft: 0,
+	// 								height: size,
+	// 							}}
+	// 						>
+	// 							{row.id}
+	// 						</div>
+	// 					);
+	// 					left += row.width;
+	// 					return Item;
+	// 				})}
+	// 			</>
+	// 		);
+	// 	},
+	// 	[]
+	// );
 
 	return (
 		<div
@@ -84,7 +81,8 @@ export const ListTypes: React.FC = () => {
 			// 	padding: 0,
 			// }}
 		>
-			<WindowWallGallery />
+			{/* <WindowWallGallery /> */}
+			<WallGallery />
 			{/* <VerticalListWindow
 				listHeight={LIST_HEIGHT}
 				listWidth={LIST_WIDTH}
