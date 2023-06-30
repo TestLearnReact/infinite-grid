@@ -40,6 +40,8 @@ export function usePerfectLayout<
 
 	const [viewportRect, setViewportRect] = useState<TViewportRect>(initRect);
 
+	const refPrevLast = useRef();
+
 	useIsomorphicLayoutEffect(() => {
 		if (refVpWrapper && refVpWrapper.current) {
 			const { height, width } = refVpWrapper.current.getBoundingClientRect();
@@ -71,25 +73,31 @@ export function usePerfectLayout<
 			refIdealRowHeight.current > 0;
 
 		if (shouldCalc) {
+			console.log('refPrevLast.current', refPrevLast.current);
+
+			refPrevLast.current = items[items.length];
+
 			/**
 			 * GENERATE PERFECT LAYOUT
 			 */
-			const { perfectGridData, totalHeight } = perfectLayout({
-				inputData: items,
-				viewportWidth: viewportRect.width,
-				viewportHeight: viewportRect.height,
-				idealRowHeight: refIdealRowHeight.current,
-				//useNextToLastPartitionsForLastRow: false, //true,
-				optimizeLastRow: { optimize: true, avgLastRowCount: 2 },
-				opts: { margin: 0 },
-				hasMore: true,
-			});
-			console.log('perfectGridData', perfectGridData);
-			setStateResponse({
-				perfectGridData,
-				totalHeight,
-				refVpWrapper,
-			});
+			(async () => {
+				const { perfectGridData, totalHeight } = await perfectLayout({
+					inputData: items,
+					viewportWidth: viewportRect.width,
+					viewportHeight: viewportRect.height,
+					idealRowHeight: refIdealRowHeight.current,
+					//useNextToLastPartitionsForLastRow: false, //true,
+					optimizeLastRow: { optimize: true, avgLastRowCount: 2 },
+					opts: { margin: 0 },
+					hasMore: true,
+				});
+				console.log('perfectGridData', perfectGridData);
+				setStateResponse({
+					perfectGridData,
+					totalHeight,
+					refVpWrapper,
+				});
+			})();
 		}
 	}, [items, viewportRect]);
 

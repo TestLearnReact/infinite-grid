@@ -12,8 +12,8 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 
 	const refSpeedBigger = useRef<boolean>(false);
 	const refScollEvent = useRef<OnScrollEvent>({
-		currData: { timestamp: 0, x: 0, y: 1 },
-		prevData: { timestamp: 0, x: 0, y: 0 },
+		currData: { timestamp: 0, x: 0, y: window.scrollY },
+		prevData: { timestamp: 0, x: 0, y: -1 },
 		scrollSpeed: 0,
 	});
 
@@ -53,7 +53,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 
 	const { visibleItems, containerStyles, isFetching, msDataRef } =
 		useVirtualList<
-			IPerfectGridData<ItemType>[0], //ItemType,
+			IPerfectGridData<ItemType>[0],
 			HTMLDivElement,
 			HTMLDivElement
 		>({
@@ -65,7 +65,7 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 			listDirection: 0,
 			overscan,
 			useWindowScroll: true,
-			items: perfectGridData, //inputData,
+			items: perfectGridData,
 			onScroll: (e) => {
 				refScollEvent.current = e;
 				refForwarded.current.scrollEvent(e);
@@ -90,7 +90,9 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 		});
 
 	const shouldRender =
-		!isFetching && containerStyles.innerContainerStyle.totalSize > 0;
+		!isFetching &&
+		containerStyles.innerContainerStyle.totalSize > 0 &&
+		visibleItems.length > 0;
 
 	console.log('rerender: ', visibleItems);
 
@@ -124,14 +126,15 @@ export default function InfiniteGrid<ItemType extends IInputDataMustContain>(
 						backgroundColor: refSpeedBigger.current ? backgroundColor : 'white',
 					}}
 				>
-					{renderVisibleItems({
-						visibleItems,
-						perfectGridData,
-						containerStyles,
-						refOuterWrapper,
-						refInnerWrapper,
-						refForwarded: refForwarded,
-					})}
+					{shouldRender &&
+						renderVisibleItems({
+							visibleItems,
+							perfectGridData,
+							containerStyles,
+							refOuterWrapper,
+							refInnerWrapper,
+							refForwarded: refForwarded,
+						})}
 				</div>
 			</div>
 		</>

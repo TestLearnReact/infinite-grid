@@ -11,6 +11,7 @@ export default function BreakpointPartition({
 	imageRatioSequence: number[];
 	expectedRowCount: number;
 }) {
+	//debugger;
 	if (imageRatioSequence.length <= 1) return [imageRatioSequence];
 	if (expectedRowCount >= imageRatioSequence.length)
 		return imageRatioSequence.map((item) => [item]);

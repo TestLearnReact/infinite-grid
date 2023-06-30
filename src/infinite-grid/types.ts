@@ -9,8 +9,22 @@ import { IPerfectGridData } from '@module/use-perfect-layout';
 
 import { CSSProperties, Ref } from 'react';
 
-export type IInputDataMustContain = { id: number; ratio: number }; // toto delete id
-export type IOutputDataContain = { height: number; width: number }; // toto delete id
+export type IInputDataMustContain = {
+	id: number;
+	ratio: number; // Keys can be strings, numbers, or symbols.
+	// // If you know it to be strings only, you can also restrict it to that.
+	// // For the value you can use any or unknown,
+	// // with unknown being the more defensive approach.
+	// [x: string | number | symbol]: unknown;
+}; // toto delete id
+export type IOutputDataContain = {
+	height: number;
+	width: number; // Keys can be strings, numbers, or symbols.
+	// // If you know it to be strings only, you can also restrict it to that.
+	// // For the value you can use any or unknown,
+	// // with unknown being the more defensive approach.
+	// [x: string | number | symbol]: unknown;
+}; // toto delete id
 
 export type IOutputVisibleItems<ItemType extends IInputDataMustContain> =
 	VisibleItemDescriptor<ItemType & IOutputDataContain>;

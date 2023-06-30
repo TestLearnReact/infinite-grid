@@ -34,7 +34,7 @@ function useRatio<T>({ width, height, data, options }: IUseRatioProps<T>) {
 		} else if (width < 1000) {
 			countFirstRow = 20;
 			//idealRowHeight = width / 2 / countFirstRow + 1;
-		} else if (width < 1500) {
+		} else if (width < 1400) {
 			countFirstRow = 30;
 			//idealRowHeight = width / 2 / countFirstRow + 1;
 		} else if (width < 2000) {
@@ -42,7 +42,13 @@ function useRatio<T>({ width, height, data, options }: IUseRatioProps<T>) {
 			//idealRowHeight = width / 2 / countFirstRow + 1;
 		}
 		countLastRow = countFirstRow + 1;
-		idealRowHeight = width / 2 / countFirstRow + 1;
+		//idealRowHeight = width / 2 / countFirstRow + 1;
+
+		idealRowHeight = (width + countFirstRow) / 2 / countFirstRow;
+
+		// idealRowHeight = Math.round(width / 30 / 2) + 1;
+
+		//idealRowHeight = idealRowHeight - countFirstRow;
 
 		for (let index = 0; index < countFirstRow; index++) {
 			arrFirstRow.push(ratioFirstRow);
@@ -56,6 +62,14 @@ function useRatio<T>({ width, height, data, options }: IUseRatioProps<T>) {
 		}
 
 		const arrRatiot = arrFirstRow.concat(arrSecondRow);
+
+		console.log(
+			'idealRowHeight',
+
+			idealRowHeight,
+			idealRowHeight * 2,
+			width
+		);
 
 		let arrIndex = 0;
 		let ratio = 1;

@@ -27,7 +27,7 @@ export const WindowWallGallery: React.FC = () => {
 	const { data: ddd, idealRowHeight } = useRatio({
 		width: rect.width,
 		height: rect.height,
-		data,
+		data: dataWidthHeightRatio,
 	});
 
 	if (error) return <p>There is an error.</p>;

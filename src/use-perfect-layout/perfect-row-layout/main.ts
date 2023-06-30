@@ -6,7 +6,7 @@ import {
 } from './types';
 import { IPerfectLayoutHookResponse } from '../types';
 
-export function perfectLayout<ItemType extends IRequiredInputDataProps>({
+export async function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	inputData,
 	viewportWidth,
 	viewportHeight,
@@ -15,9 +15,8 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 	useNextToLastPartitionsForLastRow = false,
 	optimizeLastRow = { optimize: false, avgLastRowCount: 1 },
 	hasMore = false,
-}: IPerfectLayoutProps<ItemType>): Omit<
-	IPerfectLayoutHookResponse<ItemType>,
-	'refVpWrapper'
+}: IPerfectLayoutProps<ItemType>): Promise<
+	Omit<IPerfectLayoutHookResponse<ItemType>, 'refVpWrapper'>
 > {
 	if (viewportHeight <= 0 || viewportWidth <= 0 || inputData.length <= 0)
 		return { perfectGridData: [], totalHeight: 0 }; //todo
@@ -55,10 +54,12 @@ export function perfectLayout<ItemType extends IRequiredInputDataProps>({
 		return { perfectGridData, totalHeight };
 	} else {
 		const weights = inputData.map((img) => img.ratio * 100);
+		//debugger;
 		const partitions = BreakpointPartition({
 			imageRatioSequence: weights,
 			expectedRowCount: perfectRowCount,
 		});
+		console.log(partitions);
 
 		let currItemIndex = 0;
 		let lastRowHeight = 0;
@@ -158,6 +159,12 @@ function _perfectRowsNumber<ItemType extends { ratio: number }>({
 		(sum, img) => sum + img.ratio * idealHeight,
 		0
 	);
-
+	console.log(
+		'totalWidth / viewportWidth',
+		totalWidth,
+		viewportWidth,
+		totalWidth / viewportWidth,
+		Math.round(totalWidth / viewportWidth)
+	);
 	return Math.round(totalWidth / viewportWidth);
 }

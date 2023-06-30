@@ -185,33 +185,35 @@ export const RenderItem: React.FC<IRenderItem<IData2>> = ({
 	scrollForward,
 	renderData,
 }) => {
-	const [showClass, setShowClass] = useState(
-		scrollForward && visibleRowData.itemIndex > renderData.vEndOnVpPrev
-			? 'hide'
-			: 'showed'
-	);
+	const [showClass, setShowClass] = useState('showed');
 
-	useEffect(() => {
-		const wait = Math.max(
-			visibleRowData.itemIndex -
-				Math.max(renderData.vStartOnVp, renderData.vEndOnVpPrev),
-			0
-		);
-		const timer = setTimeout(() => {
-			setShowClass('showed');
-		}, wait * 300 + rowItemCount * 40);
+	// const [showClass, setShowClass] = useState(
+	// 	scrollForward && visibleRowData.itemIndex > renderData.vEndOnVpPrev
+	// 		? 'hide'
+	// 		: 'showed'
+	// );
 
-		return () => {
-			if (timer !== null) {
-				clearTimeout(timer);
-			}
-		};
-	}, [
-		rowItemCount,
-		renderData.vEndOnVpPrev,
-		renderData.vStartOnVp,
-		visibleRowData.itemIndex,
-	]);
+	// useEffect(() => {
+	// 	const wait = Math.max(
+	// 		visibleRowData.itemIndex -
+	// 			Math.max(renderData.vStartOnVp, renderData.vEndOnVpPrev),
+	// 		0
+	// 	);
+	// 	const timer = setTimeout(() => {
+	// 		setShowClass('showed');
+	// 	}, wait * 300 + rowItemCount * 40);
+
+	// 	return () => {
+	// 		if (timer !== null) {
+	// 			clearTimeout(timer);
+	// 		}
+	// 	};
+	// }, [
+	// 	rowItemCount,
+	// 	renderData.vEndOnVpPrev,
+	// 	renderData.vStartOnVp,
+	// 	visibleRowData.itemIndex,
+	// ]);
 
 	const className = showClass;
 
