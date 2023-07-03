@@ -1,9 +1,16 @@
 import React, { useCallback, useRef, useState } from 'react';
+import { useWallLayout } from './hooks';
+import { dataWidthHeightRatio as inputData } from './data';
+
+const BREAKPOINTS = [
+	{ maxWidth: 500, count: 10 },
+	{ maxWidth: 1000, count: 20 },
+	{ maxWidth: 1500, count: 30 },
+	{ maxWidth: 2000, count: 40 },
+];
 
 export const WallGallery: React.FC = () => {
 	const [rect, setRect] = useState({ width: 0, height: 0 });
-
-	const refHasFetched = useRef<boolean[]>([]);
 
 	const refViewport = useCallback((node: HTMLDivElement) => {
 		if (node !== null) {
@@ -12,19 +19,14 @@ export const WallGallery: React.FC = () => {
 		}
 	}, []);
 
-	// const { data = [], error, hasMore, fetchData } = useFetch<IData2[]>({});
-
-	// const { data: ddd, idealRowHeight } = useRatio({
-	// 	width: rect.width,
-	// 	height: rect.height,
-	// 	data: dataWidthHeightRatio,
-	// });
-
-	// if (error) return <p>There is an error.</p>;
-	// if (!data) return <p>...Loading...</p>;
-
-	// //console.log('DATA::: ', data, wallData, dataWithRatio);
-
+	const { outputData } = useWallLayout({
+		vpWidth: rect.width,
+		minWidth: 500,
+		inputData,
+		breakpoints: BREAKPOINTS,
+	});
+	let left = 0;
+	let top = 0;
 	return (
 		<>
 			<div
@@ -38,7 +40,30 @@ export const WallGallery: React.FC = () => {
 					WebkitOverflowScrolling: 'touch',
 				}}
 			>
-				.......
+				{outputData.map((row) => {
+					const Row = row.map((item) => {
+						const Item = (
+							<div
+								key={item.id}
+								style={{
+									position: 'absolute',
+									top: top,
+									height: item.height,
+									width: item.width,
+									left: left,
+									overflow: 'hidden',
+								}}
+							>
+								{`${item.id}`}
+							</div>
+						);
+						left += item.width;
+						return Item;
+					});
+					left = 0;
+					top += row[0].height;
+					return Row;
+				})}
 			</div>
 		</>
 	);

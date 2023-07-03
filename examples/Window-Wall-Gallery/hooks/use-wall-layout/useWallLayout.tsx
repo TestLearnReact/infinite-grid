@@ -1,58 +1,43 @@
 import { useEffect, useState } from 'react';
 
+export type Config = {
+	maxWidth: number;
+	count: number;
+};
+
 export interface IUseWallLayoutProps<T> {
-	width: number;
-	height: number;
-	data: T[];
-	options?: RequestInit;
+	vpWidth: number;
+	minWidth: number;
+	inputData: T[];
+	breakpoints: Config[];
 }
 
 export function useWallLayout<T>({
-	width,
-	height,
-	data,
-	options,
+	vpWidth,
+	minWidth = 500,
+	inputData,
+	breakpoints,
 }: IUseWallLayoutProps<T>) {
 	const [hookReturn, setHookReturn] = useState<{
-		data: T[];
-		idealRowHeight: number;
-	}>({ data: [], idealRowHeight: 0 });
+		outputData: T[][];
+	}>({ outputData: [] });
 
 	useEffect(() => {
-		if (width <= 0) return;
-		if (!data || data.length <= 0) return;
+		if (vpWidth <= 0) return;
+		if (!inputData || inputData.length <= 0) return;
+
+		let indexMatch = 0;
+		for (let index = breakpoints.length - 1; index >= 0; index--) {
+			if (vpWidth >= breakpoints[index]['maxWidth']) indexMatch = index + 1;
+		}
 
 		const ratioFirstRow = 2;
 		const ratioSecondRow = 1;
 		const arrFirstRow = [];
 		const arrSecondRow = [];
 
-		let countFirstRow = 0;
-		let countLastRow = 0;
-
-		let idealRowHeight = 0;
-
-		if (width < 800) {
-			countFirstRow = 10;
-			//idealRowHeight = width / 2 / countFirstRow + 1;
-		} else if (width < 1000) {
-			countFirstRow = 20;
-			//idealRowHeight = width / 2 / countFirstRow + 1;
-		} else if (width < 1400) {
-			countFirstRow = 30;
-			//idealRowHeight = width / 2 / countFirstRow + 1;
-		} else if (width < 2000) {
-			countFirstRow = 40;
-			//idealRowHeight = width / 2 / countFirstRow + 1;
-		}
-		countLastRow = countFirstRow + 1;
-		//idealRowHeight = width / 2 / countFirstRow + 1;
-
-		idealRowHeight = (width + countFirstRow) / 2 / countFirstRow;
-
-		// idealRowHeight = Math.round(width / 30 / 2) + 1;
-
-		//idealRowHeight = idealRowHeight - countFirstRow;
+		const countFirstRow = breakpoints[indexMatch].count;
+		const countLastRow = countFirstRow + 1;
 
 		for (let index = 0; index < countFirstRow; index++) {
 			arrFirstRow.push(ratioFirstRow);
@@ -65,33 +50,110 @@ export function useWallLayout<T>({
 			}
 		}
 
-		const arrRatiot = arrFirstRow.concat(arrSecondRow);
+		const idealRowHeight = Math.max(vpWidth, minWidth) / countFirstRow / 2;
 
-		console.log(
-			'idealRowHeight',
+		const arrRatio = arrFirstRow.concat(arrSecondRow);
 
-			idealRowHeight,
-			idealRowHeight * 2,
-			width
-		);
+		let arrRow1: T[] = [];
+		let arrRow2: T[] = [];
+		const arrReturn: T[][] = [];
 
 		let arrIndex = 0;
 		let ratio = 1;
-		const wallData = data.map((item, index) => {
-			if (index % arrRatiot.length == 0) {
+		let isFirstRow = true;
+
+		inputData.map((item, index) => {
+			if (index % arrRatio.length == 0) {
 				arrIndex = 0;
+				isFirstRow = true;
+				if (index > 0) {
+					arrReturn.push(arrRow1);
+					arrReturn.push(arrRow2);
+				}
+				arrRow1 = [];
+				arrRow2 = [];
+			}
+			ratio = arrRatio[arrIndex];
+
+			if (ratio == 1) {
+				isFirstRow = false;
 			}
 
-			ratio = arrRatiot[arrIndex];
+			const modItem = {
+				...item,
+				ratio,
+				width: idealRowHeight * ratio,
+				height: idealRowHeight,
+			};
+
+			if (isFirstRow) {
+				arrRow1.push(modItem);
+			} else {
+				arrRow2.push(modItem);
+			}
 
 			arrIndex++;
-			return { ...item, ratio, width: 200, height: 50 };
 		});
-
-		setHookReturn({ data: wallData, idealRowHeight });
-	}, [width, data]);
+		console.log(arrReturn);
+		setHookReturn({ outputData: arrReturn });
+	}, [vpWidth, inputData, breakpoints, minWidth]);
 
 	return hookReturn;
 }
 
 export default useWallLayout;
+
+// if (index % arrRatio.length == 0) {
+// 	arrIndex = 0;
+// }
+// ratio = arrRatio[arrIndex];
+
+// if (index % countFirstRow) {
+// 	arr1.push({
+// 		...item,
+// 		ratio,
+// 		width: idealRowHeight * ratio,
+// 		height: idealRowHeight,
+// 	});
+// }
+
+// // arrIndex++;
+// // return {
+// // 	...item,
+// // 	ratio,
+// // 	width: idealRowHeight * ratio,
+// // 	height: idealRowHeight,
+// // };
+
+// const wallinputData = inputData.map((item, index) => {
+// 	if (index % arrRatio.length == 0) {
+// 		arrIndex = 0;
+// 		isFirstRow = true;
+// 		if (index > 0) {
+// 			arr.push(arr1);
+// 			arr.push(arr2);
+// 		}
+// 		arr1 = [];
+// 		arr2 = [];
+// 	}
+// 	ratio = arrRatio[arrIndex];
+
+// 	if (ratio == 1) {
+// 		isFirstRow = false;
+// 	}
+
+// 	const modItem = {
+// 		...item,
+// 		ratio,
+// 		width: idealRowHeight * ratio,
+// 		height: idealRowHeight,
+// 	};
+
+// 	if (isFirstRow) {
+// 		arr1.push(modItem);
+// 	} else {
+// 		arr2.push(modItem);
+// 	}
+
+// 	arrIndex++;
+// });

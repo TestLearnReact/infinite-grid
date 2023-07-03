@@ -13,3 +13,5 @@ for (let i = 0; i < 500; i++) {
 	item = { id: i, src: `src/img/${i}`, width: 1, height: 1, ratio: 1 };
 	dataWidthHeightRatio.push(item);
 }
+
+export { dataWidthHeightRatio };
